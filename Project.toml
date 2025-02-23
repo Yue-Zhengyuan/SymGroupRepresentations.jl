@@ -1,0 +1,21 @@
+name = "SymGroupRepresentations"
+uuid = "012f8b28-f87f-4a0e-ba3f-b2c050e084d0"
+authors = ["Zhengyuan Yue <yuezy1997@icloud.com>"]
+version = "0.0.1-DEV"
+
+[deps]
+Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+TensorKit = "07d1fe3e-3e46-537d-9eac-e9e13d0d4cec"
+
+[compat]
+Combinatorics = "1"
+LinearAlgebra = "1"
+TensorKit = "0.14"
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
