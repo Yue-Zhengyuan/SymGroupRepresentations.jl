@@ -55,20 +55,22 @@ function TensorKitSectors.:⊗(s1::S3Irrep, s2::S3Irrep)
     # since s1 ⊗ s2 = s2 ⊗ s1, we assume s1 > s2
     s1 < s2 && return (s2 ⊗ s1)
     if s1 == S3Irrep([3]) # trivial rep
-        return (s2,)
+        return [s2]
     elseif s1 == S3Irrep([2, 1])
         if s2 == S3Irrep([1, 1, 1])
-            return (s1,)
+            return [s1]
         else
-            return (S3Irrep([1, 1, 1]), S3Irrep([2, 1]), S3Irrep([3]))
+            return [S3Irrep([1, 1, 1]), S3Irrep([2, 1]), S3Irrep([3])]
         end
     else # s1 = s2 = S3Irrep([1, 1, 1])
-        return (S3Irrep([3]),)
+        return [S3Irrep([3])]
     end
 end
 
 function Nsymbol(s1::S3Irrep, s2::S3Irrep, s3::S3Irrep)
-    return (s3 in (s1 ⊗ s2))
+    N = (s3 in (s1 ⊗ s2))
+    @assert !ismissing(N)
+    return N
 end
 
 function fusiontensor(s1::I, s2::I, s3::I) where {I<:SNIrrep}
