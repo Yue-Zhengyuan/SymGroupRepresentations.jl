@@ -8,7 +8,7 @@ function CGC(::Type{T}, s1::S3Irrep, s2::S3Irrep, s3::S3Irrep) where {T}
         @assert s1 == s3
         CGC = trivial_CGC(T, s1, false)
     else
-        CGC = zeros(T, dim(s1), sim(s2), dim(s3), 1)
+        CGC = zeros(T, dim(s1), dim(s2), dim(s3), 1)
         if s1 == s2 == S3Irrep([1, 1, 1])
             # [1₃] ⊗ [1₃] = [3]
             CGC[1, 1, 1, 1] = one(T)

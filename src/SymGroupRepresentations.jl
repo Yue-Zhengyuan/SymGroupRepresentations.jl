@@ -9,9 +9,12 @@ export Sym, SNIrrep
 export S3, S4
 export S3Irrep, S4Irrep
 
+using TensorKitSectors: Group, AbstractIrrep, IrrepTable
+import TensorKitSectors: dim, Nsymbol, Fsymbol, Rsymbol, fusiontensor
+
 # Group
 # -----
-abstract type Sym{N} <: TensorKitSectors.Group end
+abstract type Sym{N} <: Group end
 
 const S3 = Sym{3}
 const S4 = Sym{4}
@@ -41,15 +44,9 @@ end
 const S3Irrep = SNIrrep{3}
 const S4Irrep = SNIrrep{4}
 
-Base.getindex(::TensorKitSectors.IrrepTable, ::Type{Sym{N}}) where {N} = SNIrrep{N}
+Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s1.part, s2.part)
 
-function Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N}
-    return s1.part < s2.part
-end
-
-function TensorKitSectors.dim(s::SNIrrep)
-    return Generic.dim(YoungTableau(s.part))
-end
+dim(s::SNIrrep) = Int(Generic.dim(YoungTableau(s.part)))
 
 include("cgc_s3.jl")
 include("sector.jl")
