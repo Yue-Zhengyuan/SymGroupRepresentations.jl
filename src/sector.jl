@@ -1,20 +1,38 @@
-Base.:(==)(s::SNIrrep, t::SNIrrep) = (s.part == t.part)
+# Utility
+# -------
+Base.:(==)(s::SNIrrep{N}, t::SNIrrep{N}) where {N} = (s.part == t.part)
+Base.isless(s::SNIrrep{N}, t::SNIrrep{N}) where {N} = isless(s.part, t.part)
 Base.hash(s::SNIrrep, h::UInt) = hash(s.part, h)
 Base.conj(s::SNIrrep) = s
 Base.one(::Type{SNIrrep{N}}) where {N} = SNIrrep{N}([N])
 
-TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
-Base.isreal(::Type{<:SNIrrep}) = true
+TensorKitSectors.sectorscalartype(::Type{<:S3Irrep}) = Float64
 
-function TensorKitSectors.fusiontensor(
-    s1::SNIrrep{N}, s2::SNIrrep{N}, s3::SNIrrep{N}
-) where {N}
-    return CGC(Float64, s1, s2, s3)
+TensorKitSectors.FusionStyle(::Type{S3Irrep}) = SimpleFusion() # no multiplicity
+TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
+
+# Iterator over all allowed sectors
+# custom implementation to keep state
+# TODO: verify that it isn't a problem that this iterator is stateful
+struct SNIrrepValues{N}
+    part::AllParts
+    SNIrrepValues{N}() = new{AllParts(N)}
+end
+Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
+
+Base.IteratorEltype(::Type{<:SNIrrepValues}) = HasEltype()
+Base.eltype(::Type{SNIrrepValues{N}}) where {N} = SNIrrep{N}
+
+Base.IteratorSize(::Type{<:SNIrrepValues}) = HasLength()
+Base.length(iter::SNIrrepValues{N}) where {N} = length(iter.part)
+
+function Base.iterate(iter::SNIrrepValues, state...) where {N}
+    next = iterate(iter, state...)
+    isnothing(next) && return next
+    p, nextstate = next
+    return SNIrrep{N}(p), nextstate
 end
 
-function TensorKitSectors.Fsymbol(
-    a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}, d::SNIrrep{N}, e::SNIrrep{N}, f::SNIrrep{N}
-) where {N}
     N1 = Nsymbol(a, b, e)
     N2 = Nsymbol(e, c, d)
     N3 = Nsymbol(b, c, f)
