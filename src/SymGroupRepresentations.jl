@@ -32,7 +32,7 @@ struct SNIrrep{N} <: AbstractIrrep{Sym{N}}
 end
 
 function SNIrrep{N}(part::Vector{I}) where {N,I<:Integer}
-    return SNIrrep{sum(part)}(Partition(part))
+    return SNIrrep{N}(Partition(part))
 end
 function SNIrrep(part::Vector{I}) where {I<:Integer}
     return SNIrrep{sum(part)}(Partition(part))
