@@ -33,11 +33,39 @@ function Base.iterate(iter::SNIrrepValues, state...) where {N}
     return SNIrrep{N}(p), nextstate
 end
 
+# Fusion product
+# --------------
+function TensorKitSectors.:⊗(s1::S3Irrep, s2::S3Irrep)
+    # since s1 ⊗ s2 = s2 ⊗ s1, we assume s1 > s2
+    s1 < s2 && return (s2 ⊗ s1)
+    if s1 == S3Irrep([3]) # trivial rep
+        return (s2,)
+    elseif s1 == S3Irrep([2, 1])
+        if s2 == S3Irrep([1, 1, 1])
+            return (s1,)
+        else
+            return (S3Irrep([1, 1, 1]), S3Irrep([2, 1]), S3Irrep([3]))
+        end
+    else # s1 = s2 = S3Irrep([1, 1, 1])
+        return (S3Irrep([3]),)
+    end
+end
+
+function TensorKitSectors.Nsymbol(s1::S3Irrep, s2::S3Irrep, s3::S3Irrep)
+    return (s3 in (s1 ⊗ s2))
+end
+
+function TensorKitSectors.fusiontensor(s1::I, s2::I, s3::I) where {I<:SNIrrep}
+    return CGC(sectorscalartype(I), s1, s2, s3)
+end
+
+function TensorKitSectors.Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrep}
     N1 = Nsymbol(a, b, e)
     N2 = Nsymbol(e, c, d)
     N3 = Nsymbol(b, c, f)
     N4 = Nsymbol(a, f, d)
-    (N1 == 0 || N2 == 0 || N3 == 0 || N4 == 0) && return fill(0.0, N1, N2, N3, N4)
+    (N1 == 0 || N2 == 0 || N3 == 0 || N4 == 0) &&
+        return fill(zero(sectorscalartype(I)), N1, N2, N3, N4)
     # computing first diagonal element
     A = fusiontensor(a, b, e)
     B = fusiontensor(e, c, d)[:, :, 1, :]
@@ -48,10 +76,10 @@ end
     return Array(F)
 end
 
-function TensorKitSectors.Rsymbol(a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}) where {N}
+function TensorKitSectors.Rsymbol(a::I, b::I, c::I) where {I<:SNIrrep}
     N1 = Nsymbol(a, b, c)
     N2 = Nsymbol(b, a, c)
-    (N1 == 0 || N2 == 0) && return fill(0.0, N1, N2)
+    (N1 == 0 || N2 == 0) && return fill(zero(sectorscalartype(I)), N1, N2)
     A = fusiontensor(a, b, c)[:, :, 1, :]
     B = fusiontensor(b, a, c)[:, :, 1, :]
     @tensor R[-1; -2] := conj(B[1, 2, -2]) * A[2, 1, -1]
