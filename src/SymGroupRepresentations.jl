@@ -4,7 +4,6 @@ using LinearAlgebra
 using AbstractAlgebra
 using TensorKitSectors
 using TensorOperations
-using SparseArrayKit
 
 export Sym, SNIrrep
 export S3, S4

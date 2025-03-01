@@ -30,7 +30,7 @@ function CGC(::Type{T}, s1::S3Irrep, s2::S3Irrep, s3::S3Irrep) where {T}
         @assert s1 == s3
         CGC = trivial_CGC(T, s1, false)
     else
-        CGC = SparseArray{T}(undef, dim(s1), sim(s2), dim(s3), 1)
+        CGC = Array{T}(undef, dim(s1), sim(s2), dim(s3), 1)
         if s1 == s2 == S3Irrep([1, 1, 1])
             # [1₃] ⊗ [1₃] = [3]
             CGC[1, 1, 1, 1] = 1.0
@@ -44,7 +44,7 @@ function CGC(::Type{T}, s1::S3Irrep, s2::S3Irrep, s3::S3Irrep) where {T}
             CGC[1, 2, 1, 1] = -1.0
         else
             # [2₁1₁] ⊗ [2₁1₁]
-            q = 1/sqrt(2)
+            q = 1 / sqrt(2)
             CGC[2, 1, 1, 1] = q
             CGC[2, 2, 1, 1] = q
             CGC[1, 1, 2, 1] = -q
@@ -62,12 +62,12 @@ end
 function trivial_CGC(::Type{T}, s::SNIrrep, isleft=true) where {T<:Real}
     d = dim(s)
     if isleft
-        CGC = SparseArray{T}(undef, 1, d, d, 1)
+        CGC = Array{T}(undef, 1, d, d, 1)
         for m in 1:d
             CGC[1, m, m, 1] = one(T)
         end
     else
-        CGC = SparseArray{T}(undef, d, 1, d, 1)
+        CGC = Array{T}(undef, d, 1, d, 1)
         for m in 1:d
             CGC[m, 1, m, 1] = one(T)
         end
