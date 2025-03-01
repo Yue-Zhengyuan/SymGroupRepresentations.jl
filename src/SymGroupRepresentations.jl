@@ -25,7 +25,7 @@ const S4 = Sym{4}
 Construct the S{N} irrep with given partition of 3
 """
 struct SNIrrep{N} <: AbstractIrrep{Sym{N}}
-    part::Generic.Partition
+    part::Generic.Partition{Int}
 
     function SNIrrep{N}(part::Generic.Partition) where {N}
         (sum(part) == N) ||
