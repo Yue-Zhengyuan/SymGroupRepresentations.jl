@@ -12,10 +12,10 @@ TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 
 # Iterator over all allowed sectors
 # custom implementation to keep state
-# TODO: verify that it isn't a problem that this iterator is stateful
+# TODO: this is reversed...
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
-    SNIrrepValues{N}() where {N} = new{N}(AbstractAlgebra.Generic.partitions(N))
+    SNIrrepValues{N}() where {N} = new{N}(reverse!(AbstractAlgebra.Generic.partitions(N)))
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
 
