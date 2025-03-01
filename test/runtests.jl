@@ -1,9 +1,18 @@
 using Test
-using TensorKit
 using TestExtras
+using Aqua
+using Random
+using TensorKit
 using SymGroupRepresentations
+using Combinatorics
+using TensorKit
+using TensorKit: ProductSector, fusiontensor, pentagon_equation, hexagon_equation
+using TensorOperations
+using Base.Iterators: take, product
+using LinearAlgebra: LinearAlgebra
 
-sectorlist = (S3Irrep, )
+const TK = TensorKit
+sectorlist = (S3Irrep,)
 
 smallset(::Type{I}) where {I<:Sector} = take(values(I), 5)
 function smallset(::Type{ProductSector{Tuple{I1,I2}}}) where {I1,I2}
@@ -28,4 +37,8 @@ end
 @testset "SymGroupRepresentations.jl" begin
     include("sectors.jl")
     include("fusiontrees.jl")
+end
+
+@testset "Aqua" verbose = true begin
+    Aqua.test_all(SymGroupRepresentations)
 end
