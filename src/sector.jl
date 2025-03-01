@@ -12,21 +12,7 @@ function TensorKitSectors.fusiontensor(
     return CGC(Float64, s1, s2, s3)
 end
 
-const FCACHE = LRU{Int,Any}(; maxsize=10)
 function TensorKitSectors.Fsymbol(
-    a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}, d::SNIrrep{N}, e::SNIrrep{N}, f::SNIrrep{N}
-) where {N}
-    key = (a, b, c, d, e, f)
-    K = typeof(key)
-    V = Array{Float64,4}
-    cache::LRU{K,V} = get!(FCACHE, N) do
-        return LRU{K,V}(; maxsize=10^5)
-    end
-    return get!(cache, key) do
-        return _Fsymbol(a, b, c, d, e, f)
-    end
-end
-function _Fsymbol(
     a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}, d::SNIrrep{N}, e::SNIrrep{N}, f::SNIrrep{N}
 ) where {N}
     N1 = Nsymbol(a, b, e)
@@ -44,19 +30,7 @@ function _Fsymbol(
     return Array(F)
 end
 
-const RCACHE = LRU{Int,Any}(; maxsize=10)
 function TensorKitSectors.Rsymbol(a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}) where {N}
-    key = (a, b, c)
-    K = typeof(key)
-    V = Array{Float64,2}
-    cache::LRU{K,V} = get!(RCACHE, N) do
-        return LRU{K,V}(; maxsize=10^5)
-    end
-    return get!(cache, key) do
-        return _Rsymbol(a, b, c)
-    end
-end
-function _Rsymbol(a::SNIrrep{N}, b::SNIrrep{N}, c::SNIrrep{N}) where {N}
     N1 = Nsymbol(a, b, c)
     N2 = Nsymbol(b, a, c)
     (N1 == 0 || N2 == 0) && return fill(0.0, N1, N2)

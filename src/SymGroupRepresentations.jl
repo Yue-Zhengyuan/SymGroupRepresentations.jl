@@ -4,7 +4,7 @@ using LinearAlgebra
 using AbstractAlgebra
 using TensorKitSectors
 using TensorOperations
-using LRUCache
+using SparseArrayKit
 
 export Sym, SNIrrep
 export S3, S4
@@ -28,7 +28,7 @@ struct SNIrrep{N} <: AbstractIrrep{Sym{N}}
     end
 end
 
-function SNIrrep{N}(part::Vector{I}) where {I<:Integer}
+function SNIrrep{N}(part::Vector{I}) where {N,I<:Integer}
     return SNIrrep{sum(part)}(Partition(part))
 end
 function SNIrrep(part::Vector{I}) where {I<:Integer}
