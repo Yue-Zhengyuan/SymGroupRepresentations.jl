@@ -9,11 +9,15 @@ export Sym, SNIrrep
 export S3, S4
 export S3Irrep, S4Irrep
 
+# Group
+# -----
 abstract type Sym{N} <: TensorKitSectors.Group end
 
 const S3 = Sym{3}
 const S4 = Sym{4}
 
+# Irrep
+# -----
 """
 Construct the S{N} irrep with given partition of 3
 """
@@ -36,6 +40,8 @@ end
 
 const S3Irrep = SNIrrep{3}
 const S4Irrep = SNIrrep{4}
+
+Base.getindex(::TensorKitSectors.IrrepTable, ::Type{Sym{N}}) where {N} = SNIrrep{N}
 
 function Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N}
     return s1.part < s2.part
