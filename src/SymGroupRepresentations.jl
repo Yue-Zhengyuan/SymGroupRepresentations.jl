@@ -44,7 +44,7 @@ end
 const S3Irrep = SNIrrep{3}
 const S4Irrep = SNIrrep{4}
 
-Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s1.part, s2.part)
+Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s2.part, s1.part)
 
 dim(s::SNIrrep) = Int(Generic.dim(YoungTableau(s.part)))
 
