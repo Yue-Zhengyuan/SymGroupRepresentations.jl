@@ -1,12 +1,14 @@
 using Test
 using TestExtras
 using Random
+using TensorKit
 using TensorKitSectors
 using SymGroupRepresentations
 using TensorOperations
 using Base.Iterators: take, product
 using LinearAlgebra: LinearAlgebra
 
+const TK = TensorKit
 const TKS = TensorKitSectors
 
 include("testsetup.jl")
