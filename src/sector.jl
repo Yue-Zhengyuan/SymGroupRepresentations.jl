@@ -15,7 +15,7 @@ TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 # TODO: this is reversed...
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
-    SNIrrepValues{N}() where {N} = new{N}(reverse!(AbstractAlgebra.Generic.partitions(N)))
+    SNIrrepValues{N}() where {N} = new{N}(sort!(AbstractAlgebra.Generic.partitions(N), rev=true))
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
 
@@ -52,7 +52,7 @@ end
 # Fusion product
 # --------------
 function TensorKitSectors.:⊗(s1::S3Irrep, s2::S3Irrep)
-    # since s1 ⊗ s2 = s2 ⊗ s1, we assume s1 < s2
+    # since s1 ⊗ s2 = s2 ⊗ s1, we assume s1 ≤ s2
     s1 > s2 && return (s2 ⊗ s1)
     if s1 == S3Irrep([3]) # trivial rep
         return [s2]
@@ -60,7 +60,7 @@ function TensorKitSectors.:⊗(s1::S3Irrep, s2::S3Irrep)
         if s2 == S3Irrep([1, 1, 1])
             return [s1]
         else
-            return [S3Irrep([1, 1, 1]), S3Irrep([2, 1]), S3Irrep([3])]
+            return [S3Irrep([3]), S3Irrep([2, 1]), S3Irrep([1, 1, 1])]
         end
     else # s1 = s2 = S3Irrep([1, 1, 1])
         return [S3Irrep([3])]

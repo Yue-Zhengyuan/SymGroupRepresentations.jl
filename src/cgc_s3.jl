@@ -12,25 +12,29 @@ function CGC(::Type{T}, s1::S3Irrep, s2::S3Irrep, s3::S3Irrep) where {T}
         if s1 == s2 == S3Irrep([1, 1, 1])
             # [1₃] ⊗ [1₃] = [3]
             CGC[1, 1, 1, 1] = one(T)
-        elseif s1 == S3Irrep([2, 1]) && s1 == S3Irrep([1, 1, 1])
-            # [2₁1₁] ⊗ [1₃]
+        elseif s1 == S3Irrep([2, 1]) && s2 == S3Irrep([1, 1, 1])
+            # [2₁1₁] ⊗ [1₃] = [2₁1₁]
             CGC[1, 1, 2, 1] = one(T)
             CGC[2, 1, 1, 1] = -one(T)
-        elseif s1 == S3Irrep([1, 1, 1]) && s1 == S3Irrep([2, 1])
-            # [1₃] ⊗ [2₁1₁]
+        elseif s1 == S3Irrep([1, 1, 1]) && s2 == S3Irrep([2, 1])
+            # [1₃] ⊗ [2₁1₁] = [2₁1₁]
             CGC[1, 1, 2, 1] = one(T)
             CGC[1, 2, 1, 1] = -one(T)
         else
-            # [2₁1₁] ⊗ [2₁1₁]
+            # [2₁1₁] ⊗ [2₁1₁] = [1₃] + [2₁1₁] + [3₁]
             q = 1 / sqrt(2)
-            CGC[2, 1, 1, 1] = q
-            CGC[2, 2, 1, 1] = q
-            CGC[1, 1, 2, 1] = -q
-            CGC[1, 2, 2, 1] = q
-            CGC[1, 1, 3, 1] = q
-            CGC[1, 2, 3, 1] = q
-            CGC[2, 1, 4, 1] = -q
-            CGC[2, 2, 4, 1] = q
+            if s3 == S3Irrep([3])
+                CGC[1, 1, 1, 1] = q
+                CGC[2, 1, 1, 1] = q
+            elseif s3 == S3Irrep([2, 1])
+                CGC[1, 2, 1, 1] = q
+                CGC[2, 2, 1, 1] = -q
+                CGC[1, 2, 2, 1] = q
+                CGC[2, 2, 2, 1] = q
+            else # s3 == S3Irrep([1, 1, 1])
+                CGC[1, 1, 1, 1] = q
+                CGC[2, 1, 1, 1] = -q
+            end
         end
     end
     return CGC
