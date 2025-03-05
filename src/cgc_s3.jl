@@ -21,7 +21,7 @@ function CGC(::Type{T}, s1::S3Irrep, s2::S3Irrep, s3::S3Irrep) where {T}
             CGC[1, 2, 1, 1] = one(T)
             CGC[1, 1, 2, 1] = -one(T)
         else
-            # [2₁1₁] ⊗ [2₁1₁] = [1₃] + [2₁1₁] + [3₁]
+            # [2₁1₁] ⊗ [2₁1₁] = [3₁] + [2₁1₁] + [1₃]
             q = 1 / sqrt(2)
             if s3 == S3Irrep([3])
                 CGC[1, 1, 1, 1] = q
