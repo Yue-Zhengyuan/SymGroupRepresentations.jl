@@ -1,31 +1,46 @@
 using Test
-using TensorKit
 using TestExtras
+using Random
+using TensorKit
+using TensorKitSectors
 using SymGroupRepresentations
+using TensorOperations
+using Base.Iterators: take, product
+using LinearAlgebra: LinearAlgebra
 
-sectorlist = (S3Irrep, )
+const TK = TensorKit
+const TKS = TensorKitSectors
 
-smallset(::Type{I}) where {I<:Sector} = take(values(I), 5)
-function smallset(::Type{ProductSector{Tuple{I1,I2}}}) where {I1,I2}
-    iter = product(smallset(I1), smallset(I2))
-    s = collect(i ⊠ j for (i, j) in iter if dim(i) * dim(j) <= 6)
-    return length(s) > 6 ? rand(s, 6) : s
-end
-function smallset(::Type{ProductSector{Tuple{I1,I2,I3}}}) where {I1,I2,I3}
-    iter = product(smallset(I1), smallset(I2), smallset(I3))
-    s = collect(i ⊠ j ⊠ k for (i, j, k) in iter if dim(i) * dim(j) * dim(k) <= 6)
-    return length(s) > 6 ? rand(s, 6) : s
-end
-function randsector(::Type{I}) where {I<:Sector}
-    s = collect(smallset(I))
-    a = rand(s)
-    while a == one(a) # don't use trivial label
-        a = rand(s)
-    end
-    return a
-end
+include("testsetup.jl")
+using .TestSetup
 
-@testset "SymGroupRepresentations.jl" begin
-    include("sectors.jl")
+const sectorlist = (S3Irrep,)
+
+@testset "$(TensorKitSectors.type_repr(I))" for I in sectorlist
+    @include("sectors.jl")
     include("fusiontrees.jl")
+end
+
+@testset "Deligne product" begin
+    sectorlist′ = (Trivial, sectorlist...)
+    for I1 in sectorlist′, I2 in sectorlist′
+        a = first(smallset(I1))
+        b = first(smallset(I2))
+
+        @constinferred a ⊠ b
+        @constinferred a ⊠ b ⊠ a
+        @constinferred a ⊠ b ⊠ a ⊠ b
+        @constinferred I1 ⊠ I2
+        @test typeof(a ⊠ b) == I1 ⊠ I2
+    end
+end
+
+@testset "Aqua" begin
+    using Aqua: Aqua
+    Aqua.test_all(TensorKitSectors)
+end
+
+@testset "JET" begin
+    using JET: JET
+    JET.test_package(TensorKitSectors; target_defined_modules=true)
 end
