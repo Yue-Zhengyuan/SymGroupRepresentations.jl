@@ -52,9 +52,11 @@ if BraidingStyle(I) isa Bosonic && hasfusiontensor(I)
                     X2 = fusiontensor(e, c, d)
                     Y1 = fusiontensor(b, c, f)
                     Y2 = fusiontensor(a, f, d)
-                    @tensor f1[-1, -2, -3, -4] := conj(Y2[a, f, d, -4]) *
-                                                  conj(Y1[b, c, f, -3]) *
-                                                  X1[a, b, e, -1] * X2[e, c, d, -2]
+                    @tensor f1[-1, -2, -3, -4] :=
+                        conj(Y2[a, f, d, -4]) *
+                        conj(Y1[b, c, f, -3]) *
+                        X1[a, b, e, -1] *
+                        X2[e, c, d, -2]
                     if FusionStyle(I) isa MultiplicityFreeFusion
                         f2 = fill(Fsymbol(a, b, c, d, e, f) * dim(d), (1, 1, 1, 1))
                     else
@@ -79,10 +81,12 @@ end
                 for e in es
                     for f in fs
                         Fs = Fsymbol(a, b, c, d, e, f)
-                        push!(Fblocks,
-                              reshape(Fs,
-                                      (size(Fs, 1) * size(Fs, 2),
-                                       size(Fs, 3) * size(Fs, 4))))
+                        push!(
+                            Fblocks,
+                            reshape(
+                                Fs, (size(Fs, 1) * size(Fs, 2), size(Fs, 3) * size(Fs, 4))
+                            ),
+                        )
                     end
                 end
                 F = hvcat(length(fs), Fblocks...)

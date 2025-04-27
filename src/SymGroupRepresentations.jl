@@ -22,7 +22,7 @@ const S4 = Sym{4}
 # Irrep
 # -----
 """
-Construct the S{N} irrep with given partition of N
+Construct the `S{N}` irrep with given partition of N
 """
 struct SNIrrep{N} <: AbstractIrrep{Sym{N}}
     part::Generic.Partition{Int}
@@ -53,8 +53,9 @@ include("gen_cache/irrep_data.jl")
 include("gen_cache/projector.jl")
 
 include("cgc.jl")
-include("cgc_s3.jl")
-include("cgc_s4.jl")
 include("sector.jl")
+
+const _allCGCs = (; :S3 => calall_CGCs(S3Irrep), :S4 => calall_CGCs(S4Irrep))
+@info "CG coefficients for S3, S4 pre-calculated."
 
 end

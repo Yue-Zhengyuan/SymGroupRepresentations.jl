@@ -17,7 +17,9 @@ TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 # TODO: this is reversed...
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
-    SNIrrepValues{N}() where {N} = new{N}(sort!(AbstractAlgebra.Generic.partitions(N), rev=true))
+    function SNIrrepValues{N}() where {N}
+        return new{N}(sort!(AbstractAlgebra.Generic.partitions(N); rev=true))
+    end
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
 

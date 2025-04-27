@@ -14,7 +14,7 @@ const TKS = TensorKitSectors
 include("testsetup.jl")
 using .TestSetup
 
-const sectorlist = (S3Irrep,)
+const sectorlist = (S3Irrep, S4Irrep)
 
 @testset "$(TensorKitSectors.type_repr(I))" for I in sectorlist
     @include("sectors.jl")
