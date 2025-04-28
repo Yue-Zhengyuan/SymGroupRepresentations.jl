@@ -178,6 +178,9 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     elseif R == S4Irrep
         irrep_gen = irreps_gen.S4
         elements = genreps.S4
+    elseif R == S5Irrep
+        irrep_gen = irreps_gen.S5
+        elements = genreps.S5
     else
         error("$R is not implemented.")
     end
@@ -189,35 +192,50 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     end
     T = eltype(irrep_gen[c2][1])
     # find irreps appearing in s1 ⊗ s2
-    c3s = findall([Nsymbol(s1, s2, s3) > 0 for s3 in values(R)])
+    n3s = [Int(Nsymbol(s1, s2, s3)) for s3 in values(R)]
+    c3s = findall(x -> x > 0, n3s)
+    n3s = n3s[c3s]
     if isone(s1)
         # trivial case
-        basis = Matrix{T}(I(dim(s2)))
+        cgbasis = Matrix{T}(I(dim(s2)))
     else
         # generator matrix for s1 ⊗ s2
         irrep1, irrep2 = irrep_gen[c1], irrep_gen[c2]
         rep = collect(kron(rep1, rep2) for (rep1, rep2) in zip(irrep1, irrep2))
-        # find all projectors
-        projs = vcat((cal_projectors(irrep_gen[c3], rep, elements) for c3 in c3s)...)
-        basis = hcat(
+        cgbasis = hcat(
             (
-                map(projs) do p
-                    p2 = p - I
-                    if (size(p2) == (1, 1)) && (norm(p2, 2) < 5 * eps())
-                        p2 .= 0
+                map(zip(c3s, n3s)) do (c3, n3)
+                    # projectors to the CG basis vectors for irrep c3
+                    projs = cal_projectors(irrep_gen[c3], rep, elements)
+                    # CG basis vectors for all appearances of irrep c3
+                    basis = hcat(
+                        (
+                            map(projs) do p
+                                p2 = p - I
+                                if (size(p2) == (1, 1)) && (norm(p2, 2) < 5 * eps())
+                                    p2 .= 0
+                                end
+                                cols = nullspace(p2)
+                                n3_ = size(cols, 2)
+                                if n3_ != n3
+                                    error(
+                                        "(Projector - I) null space dimension is not $n3 (obtained $(n3_))) for s1 = $s1, s2 = $s2.",
+                                    )
+                                end
+                                return cols
+                            end
+                        )...,
+                    )
+                    # reorder basis vectors when there is multiplicity
+                    if n3 > 1
+                        error("Not implemented")
                     end
-                    col = nullspace(p2)
-                    if size(col, 2) != 1
-                        error(
-                            "(Projector - I) null space dimension is not 1 (obtained $(size(col, 2))) for s1 = $s1, s2 = $s2.",
-                        )
-                    end
-                    return col
+                    return basis
                 end
             )...,
         )
         # adjust sign of columns
-        rep2 = [round.(inv(basis) * g * basis; digits=14) for g in rep]
+        rep2 = [round.(inv(cgbasis) * g * cgbasis; digits=14) for g in rep]
         d3s = [dim(values(R)[c3]) for c3 in c3s]
         slices = _length_to_slice(d3s)
         signs = vcat(
@@ -232,7 +250,7 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
                 end
             )...,
         )
-        basis[:, findall(x -> x == -1, signs)] *= -1
+        cgbasis[:, findall(x -> x == -1, signs)] *= -1
     end
     # meaning of each row/column of `basis`
     rows = [(i1, i2) for i1 in 1:dim(s1) for i2 in 1:dim(s2)]
@@ -240,8 +258,8 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     # convert to CGC dict; entries with CGC = 0 are not saved
     CGC = Dict{NTuple{6,Int},T}()
     for (r, (i1, i2)) in enumerate(rows), (c, (c3, i3)) in enumerate(cols)
-        if !isapprox(basis[r, c], 0.0; atol=5 * eps())
-            CGC[(c1, c2, c3, i1, i2, i3)] = basis[r, c]
+        if !isapprox(cgbasis[r, c], 0.0; atol=5 * eps())
+            CGC[(c1, c2, c3, i1, i2, i3)] = cgbasis[r, c]
         end
     end
     return CGC
