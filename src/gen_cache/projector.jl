@@ -189,7 +189,7 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     end
     T = eltype(irrep_gen[c2][1])
     # find irreps appearing in s1 ⊗ s2
-    c3s = findall([Nsymbol(s1, s2, s3) for s3 in values(R)])
+    c3s = findall([Nsymbol(s1, s2, s3) > 0 for s3 in values(R)])
     if isone(s1)
         # trivial case
         basis = Matrix{T}(I(dim(s2)))

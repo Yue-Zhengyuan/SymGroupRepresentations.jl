@@ -6,8 +6,8 @@ using TensorKitSectors
 using TensorOperations
 
 export Sym, SNIrrep
-export S3, S4
-export S3Irrep, S4Irrep
+export S3, S4, S5
+export S3Irrep, S4Irrep, S5Irrep
 
 using TensorKitSectors: Group, AbstractIrrep, IrrepTable
 import TensorKitSectors: dim, Nsymbol, Fsymbol, Rsymbol, fusiontensor
@@ -18,6 +18,7 @@ abstract type Sym{N} <: Group end
 
 const S3 = Sym{3}
 const S4 = Sym{4}
+const S5 = Sym{5}
 
 # Irrep
 # -----
@@ -43,6 +44,10 @@ end
 
 const S3Irrep = SNIrrep{3}
 const S4Irrep = SNIrrep{4}
+const S5Irrep = SNIrrep{5}
+
+# Only S3, S4 have SimpleFusion
+const SNIrrepSimple = Union{S3Irrep,S4Irrep}
 
 Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s2.part, s1.part)
 

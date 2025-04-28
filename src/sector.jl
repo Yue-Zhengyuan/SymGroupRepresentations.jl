@@ -8,7 +8,6 @@ Base.one(::Type{SNIrrep{N}}) where {N} = SNIrrep{N}([N])
 sectorscalartype(::Type{<:S3Irrep}) = Float64
 sectorscalartype(::Type{<:S4Irrep}) = Float64
 
-const SNIrrepSimple = Union{S3Irrep,S4Irrep}
 TensorKitSectors.FusionStyle(::Type{S3Irrep}) = SimpleFusion()
 TensorKitSectors.FusionStyle(::Type{S4Irrep}) = SimpleFusion()
 TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
@@ -65,9 +64,9 @@ function fusiontensor(s1::I, s2::I, s3::I) where {I<:SNIrrep}
     return CGC(sectorscalartype(I), s1, s2, s3)
 end
 
-## Special cases with SimpleFusion
+## GeneralFusion
 
-function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrepSimple}
+function _Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrep}
     c1, c2, c3 = 0, 0, 0
     for (a, s) in enumerate(values(I))
         (s == s1) && (c1 = a)
@@ -75,35 +74,17 @@ function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrepSimple}
         (s == s3) && (c3 = a)
         (c1 != 0) && (c2 != 0) && (c3 != 0) && break
     end
-    if I == S3Irrep
-        ng, char_table, nc = 6, char_tables.S3, ncs.S3
-    else
-        ng, char_table, nc = 24, char_tables.S4, ncs.S4
-    end
+    N = I.parameters[1]
+    ng = factorial(N)
+    Gname = Symbol("S" * string(N))
+    char_table, nc = char_tables[Gname], ncs[Gname]
     chis = char_table[c1, :] .* char_table[c2, :]
-    return Bool(sum(nc .* conj(char_table[c3, :]) .* chis) / ng)
+    return Int(sum(nc .* conj(char_table[c3, :]) .* chis) / ng)
 end
 
-# SimpleFusion -> Fsymbol isa Number
-function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrepSimple}
-    (Nsymbol(a, b, e) && Nsymbol(e, c, d) && Nsymbol(b, c, f) && Nsymbol(a, f, d)) ||
-        return zero(sectorscalartype(I))
-    A = fusiontensor(a, b, e)[:, :, :, 1]
-    B = fusiontensor(e, c, d)[:, :, 1, 1]
-    C = fusiontensor(b, c, f)[:, :, :, 1]
-    D = fusiontensor(a, f, d)[:, :, 1, 1]
-    return @tensor conj(D[1, 5]) * conj(C[2, 4, 5]) * A[1, 2, 3] * B[3, 4]
+function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrep}
+    return _Nsymbol(s1, s2, s3)
 end
-
-# SimpleFusion -> Rsymbol isa Number
-function Rsymbol(a::I, b::I, c::I) where {I<:SNIrrepSimple}
-    (Nsymbol(a, b, c) && Nsymbol(b, a, c)) || return zero(sectorscalartype(I))
-    A = fusiontensor(a, b, c)[:, :, 1, 1]
-    B = fusiontensor(b, a, c)[:, :, 1, 1]
-    return @tensor conj(B[1, 2]) * A[2, 1]
-end
-
-## GeneralFusion
 
 function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrep}
     N1 = Nsymbol(a, b, e)
@@ -131,4 +112,30 @@ function Rsymbol(a::I, b::I, c::I) where {I<:SNIrrep}
     B = fusiontensor(b, a, c)[:, :, 1, :]
     @tensor R[-1; -2] = conj(B[1, 2, -2]) * A[2, 1, -1]
     return R
+end
+
+## Special cases with SimpleFusion
+
+# Nsymbol is of type Bool
+function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrepSimple}
+    return Bool(_Nsymbol(s1, s2, s3))
+end
+
+# Fsymbol isa Number
+function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrepSimple}
+    (Nsymbol(a, b, e) && Nsymbol(e, c, d) && Nsymbol(b, c, f) && Nsymbol(a, f, d)) ||
+        return zero(sectorscalartype(I))
+    A = fusiontensor(a, b, e)[:, :, :, 1]
+    B = fusiontensor(e, c, d)[:, :, 1, 1]
+    C = fusiontensor(b, c, f)[:, :, :, 1]
+    D = fusiontensor(a, f, d)[:, :, 1, 1]
+    return @tensor conj(D[1, 5]) * conj(C[2, 4, 5]) * A[1, 2, 3] * B[3, 4]
+end
+
+# Rsymbol isa Number
+function Rsymbol(a::I, b::I, c::I) where {I<:SNIrrepSimple}
+    (Nsymbol(a, b, c) && Nsymbol(b, a, c)) || return zero(sectorscalartype(I))
+    A = fusiontensor(a, b, c)[:, :, 1, 1]
+    B = fusiontensor(b, a, c)[:, :, 1, 1]
+    return @tensor conj(B[1, 2]) * A[2, 1]
 end
