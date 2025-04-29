@@ -8,7 +8,7 @@ convert it to a unitary representation using the "unitarian trick"
 - `elements::Vector`: functions to calculate matrices for all group elements from the generators.
 """
 function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMatrix}
-    if all(is_unitary.(rep))
+    if all(is_left_unitary.(rep))
         return rep
     end
     ng = length(elements)
@@ -25,7 +25,7 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMat
     W = F.vectors
     rep_u = [ρ * W' * g * W * ρinv for g in rep]
     # self-check
-    @assert all(is_unitary.(rep_u))
+    @assert all(is_left_unitary.(rep_u))
     for (g, gu) in zip(rep, rep_u)
         if isapprox(tr(g), 0; atol=1e-14)
             @assert isapprox(tr(gu), 0, atol=1e-14)
@@ -37,11 +37,10 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMat
 end
 
 """
-Determine if a square matrix is unitary
+Determine if a square matrix `a` is left-unitary, i.e. `a' * a ≈ 1`.
 """
-function is_unitary(a::AbstractMatrix)
-    @assert size(a, 1) == size(a, 2)
-    n = size(a, 1)
+function is_left_unitary(a::AbstractMatrix; tol=1e-12)
+    n = size(a, 2)
     iden = Matrix{eltype(a)}(I, n, n)
-    return isapprox(a' * a, iden; atol=1e-12)
+    return isapprox(a' * a, iden; atol=tol)
 end

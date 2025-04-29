@@ -154,12 +154,15 @@ function allowed_signs(A::AbstractMatrix, B::AbstractMatrix)
     return results
 end
 
-function _length_to_slice(lengths::Vector{Int})
-    start_idx = 1
-    slices = map(lengths) do l
-        slice = start_idx:(start_idx + l - 1)
-        start_idx += l
-        return slice
+function _length_to_slice(lengths::Vector{Int}, muls::Vector{Int})
+    slices = Vector{UnitRange{Int}}()
+    start = 1
+    for (len, count) in zip(lengths, muls)
+        for _ in 1:count
+            slice = start:(start + len - 1)
+            push!(slices, slice)
+            start += len
+        end
     end
     return slices
 end
@@ -218,9 +221,15 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
                                 cols = nullspace(p2)
                                 n3_ = size(cols, 2)
                                 if n3_ != n3
+                                    s3 = values(R)[c3]
                                     error(
-                                        "(Projector - I) null space dimension is not $n3 (obtained $(n3_))) for s1 = $s1, s2 = $s2.",
+                                        "Null space dimension is not $n3 (obtained $(n3_))\nfor s1 = $s1, s2 = $s2, s3 = $s3.\nProjector - I = $p2.",
                                     )
+                                end
+                                if n3 > 1
+                                    # p2 is Hermitian
+                                    # check Julia returns an orthonormal basis by default
+                                    @assert is_left_unitary(cols)
                                 end
                                 return cols
                             end
@@ -228,23 +237,28 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
                     )
                     # reorder basis vectors when there is multiplicity
                     if n3 > 1
-                        error("Not implemented")
+                        w = div(size(basis, 2), 2)
+                        perm = vcat(1:2:(2 * w - 1), 2:2:(2 * w))
+                        basis = basis[:, perm]
                     end
                     return basis
                 end
             )...,
         )
         # adjust sign of columns
-        rep2 = [round.(inv(cgbasis) * g * cgbasis; digits=14) for g in rep]
+        rep2 = [inv(cgbasis) * g * cgbasis for g in rep]
         d3s = [dim(values(R)[c3]) for c3 in c3s]
-        slices = _length_to_slice(d3s)
+        slices = _length_to_slice(d3s, n3s)
         signs = vcat(
             (
                 map(zip(c3s, slices)) do (c3, slice)
                     subrep1 = irrep_gen[c3]
                     subrep2 = [g[slice, slice] for g in rep2]
                     us = intersect(
-                        (allowed_signs(g1, g2) for (g1, g2) in zip(subrep1, subrep2))...
+                        (
+                            allowed_signs(round.(g1; digits=14), round.(g2; digits=14)) for
+                            (g1, g2) in zip(subrep1, subrep2)
+                        )...,
                     )
                     return us[1]
                 end
