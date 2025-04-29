@@ -54,6 +54,7 @@ Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s2.part, s1.part)
 dim(s::SNIrrep) = Int(Generic.dim(YoungTableau(s.part)))
 
 # generate CGC disk cache
+include("gen_cache/unitary_rep.jl")
 include("gen_cache/irrep_data.jl")
 include("gen_cache/projector.jl")
 
