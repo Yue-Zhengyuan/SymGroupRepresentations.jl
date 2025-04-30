@@ -1,5 +1,6 @@
-function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrepSimple}
-    cgc = zeros(T, dim(s1), dim(s2), dim(s3), 1)
+function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrep}
+    ndeg = _Nsymbol(s1, s2, s3)
+    cgc = zeros(T, dim(s1), dim(s2), dim(s3), ndeg)
     c1, c2, c3 = 0, 0, 0
     for (a, s) in enumerate(values(R))
         (s == s1) && (c1 = a)
@@ -9,12 +10,14 @@ function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrepSimple}
     end
     if R == S3Irrep
         allcgcs = _allCGCs.S3
-    else
+    elseif R == S4Irrep
         allcgcs = _allCGCs.S4
+    else
+        error("Not implemented")
     end
     for idx in CartesianIndices(cgc)
-        i1, i2, i3, _ = Tuple(idx)
-        key = (c1, c2, c3, i1, i2, i3)
+        i1, i2, i3, deg = Tuple(idx)
+        key = (c1, c2, c3, i1, i2, i3, deg)
         if haskey(allcgcs, key)
             cgc[idx] = allcgcs[key]
         end
