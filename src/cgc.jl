@@ -12,8 +12,10 @@ function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrep}
         allcgcs = _allCGCs.S3
     elseif R == S4Irrep
         allcgcs = _allCGCs.S4
+    elseif R == S5Irrep
+        allcgcs = _allCGCs.S5
     else
-        error("Not implemented")
+        error("$R is not implemented.")
     end
     for idx in CartesianIndices(cgc)
         i1, i2, i3, deg = Tuple(idx)

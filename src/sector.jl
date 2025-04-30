@@ -5,11 +5,12 @@ Base.hash(s::SNIrrep, h::UInt) = hash(s.part, h)
 Base.conj(s::SNIrrep) = s
 Base.one(::Type{SNIrrep{N}}) where {N} = SNIrrep{N}([N])
 
-sectorscalartype(::Type{<:S3Irrep}) = Float64
-sectorscalartype(::Type{<:S4Irrep}) = Float64
+# symmetric group irreps are all real
+sectorscalartype(::Type{<:SNIrrep}) = Float64
 
 TensorKitSectors.FusionStyle(::Type{S3Irrep}) = SimpleFusion()
 TensorKitSectors.FusionStyle(::Type{S4Irrep}) = SimpleFusion()
+TensorKitSectors.FusionStyle(::Type{<:SNIrrep}) = GenericFusion()
 TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 
 # Iterator over all allowed sectors

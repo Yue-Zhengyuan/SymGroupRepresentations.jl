@@ -49,26 +49,48 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
         # generator matrix for s1 ⊗ s2
         irrep1, irrep2 = irrep_gen[c1], irrep_gen[c2]
         rep = collect(kron(rep1, rep2) for (rep1, rep2) in zip(irrep1, irrep2))
-        cgbasis = hcat((
-            map(zip(c3s, n3s)) do (c3, n3)
-                irrep3 = irrep_gen[c3]
-                if n3 == 1
-                    basis = get_intertwiner(irrep3, rep, elements)
+        cgbasis = hcat(
+            (
+                map(zip(c3s, n3s)) do (c3, n3)
+                    irrep3 = irrep_gen[c3]
+                    if n3 == 1
+                        basis = get_intertwiner(irrep3, rep, elements)
+                    else
+                        # generate a list of linearly independent intertwiners
+                        intertwiners = nothing
+                        while true
+                            intertwiners = [
+                                get_intertwiner(irrep3, rep, elements) for _ in 1:n3
+                            ]
+                            is_linearly_independent(intertwiners)[1] && break
+                        end
+                        intertwiners = _gram_schmidt(intertwiners)
+                        basis = hcat(intertwiners...)
+                    end
                     num = _find_first_nonzero_element(basis)
                     basis .*= abs(num) / num
                     @assert is_left_unitary(basis)
-                else
-                    error("Not implemented")
+                    return basis
                 end
-                return basis
-            end
-        )...)
+            )...,
+        )
+        # self check: compare with the direct sum representation
+        @assert is_left_unitary(cgbasis)
+        rep = [cgbasis' * g * cgbasis for g in rep]
+        repds = [
+            block_diag(
+                (irrep_gen[c3][i] for (a, c3) in enumerate(c3s) for _ in 1:n3s[a])...
+            ) for i in 1:length(rep)
+        ]
+        if !all(isapprox(g1, g2) for (g1, g2) in zip(rep, repds))
+            error("CG basis is incorrect for $s1, $s2.")
+        end
     end
     # meaning of each row/column of `basis`
     rows = [(i1, i2) for i1 in 1:dim(s1) for i2 in 1:dim(s2)]
     cols = [
-        (c3, i3, deg) for (a, c3) in enumerate(c3s) for i3 in 1:dim(values(R)[c3]) for
-        deg in 1:n3s[a]
+        (c3, i3, deg) for (a, c3) in enumerate(c3s) for deg in 1:n3s[a] for
+        i3 in 1:dim(values(R)[c3])
     ]
     # convert to CGC dict; entries with CGC = 0 are not saved
     CGC = Dict{NTuple{7,Int},T}()

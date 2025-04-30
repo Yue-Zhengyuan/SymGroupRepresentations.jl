@@ -111,15 +111,73 @@ function get_intertwiner(
 ) where {M<:AbstractMatrix}
     d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
     T = eltype(rep1[1])
-    S = rand(T, d2, d1)
-    f = get_intertwiner(rep1, rep2, elements, S)
     # avoid the trivial intertwiner
-    while norm(f) < 1e-12
+    f = nothing
+    while true
         S = rand(T, d2, d1)
         f = get_intertwiner(rep1, rep2, elements, S)
+        (norm(f) > 1e-12) && break
     end
     # normalize intertwiner
     λ = (f' * f)[1, 1]
     f ./= sqrt(λ)
     return f
+end
+
+function is_propto1(A::AbstractMatrix, tol=1e-12)
+    if (size(A, 1) == size(A, 2))
+        n = size(A, 1)
+        c1 = (tr(A) / n) * Matrix{eltype(A)}(I(n))
+        return norm(A - c1) < tol
+    else
+        return false
+    end
+end
+
+"""
+Inner product of two intertwiners `f1, f2` between two unitary representations
+`rep1`, `rep2`, where `rep2` is irreducible and `rep1` has a larger dimension.
+"""
+function _inner_prod(f1::AbstractMatrix, f2::AbstractMatrix)
+    @assert size(f1) == size(f2)
+    @assert size(f1, 1) >= size(f1, 2)
+    mat = f1' * f2
+    @assert is_propto1(mat)
+    return mat[1, 1]
+end
+
+"""
+Check linear independence of a set of intertwiners.
+Returns the check result and the Gram matrix. 
+"""
+function is_linearly_independent(
+    vecs::Vector{M}, tol::Float64=1e-10
+) where {M<:AbstractMatrix}
+    G = collect(_inner_prod(v1, v2) for v1 in vecs, v2 in vecs)
+    return abs(det(G)) > tol, G
+end
+
+"""
+Gram-Schmidt orthogonalization of a basis of the intertwiner space.
+"""
+function _gram_schmidt(
+    intertwiners::Vector{M}; tol::Float64=1e-10
+) where {M<:AbstractMatrix}
+    N = length(intertwiners)
+    T = eltype(intertwiners[1])
+    basis = Vector{M}()
+    for i in 1:N
+        v = intertwiners[i]
+        # Subtract projections along all previously obtained basis vectors.
+        for Q in basis
+            proj_coeff = _inner_prod(Q, v) / _inner_prod(Q, Q)
+            v = v - proj_coeff * Q
+        end
+        if abs(_inner_prod(v, v)) < tol
+            error("Encountered near-zero vector during orthogonalization.")
+        end
+        norm_v = sqrt(_inner_prod(v, v))
+        push!(basis, v / norm_v)
+    end
+    return basis
 end
