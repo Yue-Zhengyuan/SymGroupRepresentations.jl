@@ -13,12 +13,12 @@ end
 
 """
 Find all Clebsch-Gordan coefficients relevant to reduction of `s1 ⊗ s2`.
+Since `s1 ⊗ s2 = s2 ⊗ s1`, we only calculate `s1 ≤ s2` cases. 
 """
-function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
-    # s1 ⊗ s2 = s2 ⊗ s1
-    if s1 > s2
-        return Dict(key[[2, 1, 3, 5, 4, 6, 7]] => val for (key, val) in cal_CGCs(s2, s1))
-    end
+function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
+    (s1 > s2) && error("Only intended to calculate CGCs for `s1 ≤ s2`.")
+    # for deterministic values of CGC
+    Random.seed!(100)
     if R == S3Irrep
         irrep_gen = irreps_gen.S3
         elements = genreps.S3
@@ -75,7 +75,7 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
             )...,
         )
         # self check: compare with the direct sum representation
-        @assert is_left_unitary(cgbasis)
+        @assert is_left_unitary(cgbasis) "CG basis is not unitary for $s1 ⊗ $s2."
         rep = [cgbasis' * g * cgbasis for g in rep]
         repds = [
             block_diag(
@@ -103,8 +103,15 @@ function cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
 end
 
 """
-Find all Clebsch-Gordan coefficients for `SNIrrep`
+Find all nonzero Clebsch-Gordan coefficients for `SNIrrep` with `s1 ≤ s2`.
 """
-function calall_CGCs(R::Type{<:SNIrrep})
-    return merge((cal_CGCs(s1, s2) for s1 in values(R), s2 in values(R))...)
+function _calall_CGCs(R::Type{<:SNIrrep})
+    # CGCs with s1 <= s2
+    ss = values(R)
+    n = length(ss)
+    allcgcs = merge((begin
+        s1, s2 = ss[c1], ss[c2]
+        _cal_CGCs(s1, s2)
+    end for c1 in 1:n for c2 in c1:n)...)
+    return allcgcs
 end

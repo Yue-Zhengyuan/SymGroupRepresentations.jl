@@ -119,8 +119,7 @@ function get_intertwiner(
         (norm(f) > 1e-12) && break
     end
     # normalize intertwiner
-    λ = (f' * f)[1, 1]
-    f ./= sqrt(λ)
+    f ./= sqrt(_inner_prod(f, f))
     return f
 end
 

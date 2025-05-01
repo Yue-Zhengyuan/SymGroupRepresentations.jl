@@ -64,12 +64,10 @@ include("gen_cache/cal_cgcs.jl")
 include("cgc.jl")
 include("sector.jl")
 
-# for deterministic values of CGC
-Random.seed!(0)
 const _allCGCs = (;
-    :S3 => calall_CGCs(S3Irrep),
-    :S4 => calall_CGCs(S4Irrep),
-    :S5 => calall_CGCs(S5Irrep)
+    :S3 => _calall_CGCs(S3Irrep),
+    :S4 => _calall_CGCs(S4Irrep),
+    :S5 => _calall_CGCs(S5Irrep)
 )
 @info "CG coefficients for S3, S4, S5 pre-calculated."
 

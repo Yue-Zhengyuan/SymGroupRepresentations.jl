@@ -19,7 +19,7 @@ function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrep}
     end
     for idx in CartesianIndices(cgc)
         i1, i2, i3, deg = Tuple(idx)
-        key = (c1, c2, c3, i1, i2, i3, deg)
+        key = (c1 <= c2) ? (c1, c2, c3, i1, i2, i3, deg) : (c2, c1, c3, i2, i1, i3, deg)
         if haskey(allcgcs, key)
             cgc[idx] = allcgcs[key]
         end
