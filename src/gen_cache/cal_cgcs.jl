@@ -17,17 +17,12 @@ Since `s1 ⊗ s2 = s2 ⊗ s1`, we only calculate `s1 ≤ s2` cases.
 """
 function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     (s1 > s2) && error("Only intended to calculate CGCs for `s1 ≤ s2`.")
-    # for deterministic values of CGC
-    Random.seed!(100)
     if R == S3Irrep
         irrep_gen = irreps_gen.S3
-        elements = genreps.S3
     elseif R == S4Irrep
         irrep_gen = irreps_gen.S4
-        elements = genreps.S4
     elseif R == S5Irrep
         irrep_gen = irreps_gen.S5
-        elements = genreps.S5
     else
         error("$R is not implemented.")
     end
@@ -53,20 +48,12 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
             (
                 map(zip(c3s, n3s)) do (c3, n3)
                     irrep3 = irrep_gen[c3]
-                    if n3 == 1
-                        basis = get_intertwiner(irrep3, rep, elements)
-                    else
-                        # generate a list of linearly independent intertwiners
-                        intertwiners = nothing
-                        while true
-                            intertwiners = [
-                                get_intertwiner(irrep3, rep, elements) for _ in 1:n3
-                            ]
-                            is_linearly_independent(intertwiners)[1] && break
-                        end
-                        intertwiners = _gram_schmidt(intertwiners)
-                        basis = hcat(intertwiners...)
-                    end
+                    fs = get_intertwiners(irrep3, rep)
+                    @assert isapprox(
+                        collect(_inner_prod(f1, f2) for f1 in fs, f2 in fs), I(length(fs))
+                    )
+                    basis = hcat(fs...)
+                    # phase fixing
                     num = _find_first_nonzero_element(basis)
                     basis .*= abs(num) / num
                     @assert is_left_unitary(basis)

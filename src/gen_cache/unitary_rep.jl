@@ -69,60 +69,6 @@ function _find_first_nonzero_element(matrix::AbstractMatrix, tol=1e-14)
     return error("No element in the first column is significantly different from zero.")
 end
 
-"""
-    get_intertwiner(
-        rep1::Vector{M}, rep2::Vector{M}, elements::Vector, [S::M]
-    ) where {M<:AbstractMatrix}
-
-Given two unitary representations `rep1`, `rep2` of a group `G` 
-containing elements `elements`, and a matrix `S`,
-(these matrices should have the same `eltype`)
-construct an intertwiner `f` between `rep1`, `rep2` as
-```
-    f = (1/|G|) ∑_g rep2[g] * S * rep1†[g]
-```
-such that
-```
-    ∀ g ∈ G:    rep2[g] ∘ f = f ∘ rep1[g]
-```
-For convenience, we require dimension of `rep1` to be smaller than `rep2`.
-"""
-function get_intertwiner(
-    rep1::Vector{M}, rep2::Vector{M}, elements::Vector, S::M
-) where {M<:AbstractMatrix}
-    ng = length(elements)
-    @assert length(rep1) == length(rep2)
-    # check unitarity
-    @assert all(is_left_unitary.(rep1))
-    @assert all(is_left_unitary.(rep2))
-    # Dimension of the representation
-    d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
-    @assert d1 <= d2
-    T = eltype(rep1[1])
-    f = zeros(T, d2, d1)
-    for g in elements
-        f += (1 / ng) * g(rep2...) * S * g(rep1...)'
-    end
-    return f
-end
-
-function get_intertwiner(
-    rep1::Vector{M}, rep2::Vector{M}, elements::Vector
-) where {M<:AbstractMatrix}
-    d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
-    T = eltype(rep1[1])
-    # avoid the trivial intertwiner
-    f = nothing
-    while true
-        S = rand(T, d2, d1)
-        f = get_intertwiner(rep1, rep2, elements, S)
-        (norm(f) > 1e-12) && break
-    end
-    # normalize intertwiner
-    f ./= sqrt(_inner_prod(f, f))
-    return f
-end
-
 function is_propto1(A::AbstractMatrix, tol=1e-12)
     if (size(A, 1) == size(A, 2))
         n = size(A, 1)
@@ -146,37 +92,45 @@ function _inner_prod(f1::AbstractMatrix, f2::AbstractMatrix)
 end
 
 """
-Check linear independence of a set of intertwiners.
-Returns the check result and the Gram matrix. 
-"""
-function is_linearly_independent(
-    vecs::Vector{M}, tol::Float64=1e-10
-) where {M<:AbstractMatrix}
-    G = collect(_inner_prod(v1, v2) for v1 in vecs, v2 in vecs)
-    return abs(det(G)) > tol, G
-end
+    get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMatrix}
 
+Given two unitary representations `rep1`, `rep2` of a group `G` 
+(`rep1` is irreducible, and `rep2` has a larger or equal dimension than `rep1`)
+construct an orthonormal basis of the space of intertwiners `f`
+between the two representations that satisfies
+```
+    ∀ g ∈ G:    rep2[g] ∘ f = f ∘ rep1[g]
+```
+The basis intertwiners are orthonormal in the sense that
+```
+    fᵢ' * fⱼ = δᵢⱼ 1
+```
+where `1` is the identity matrix with the same dimension as `rep1`. 
+
+## Arguments
+
+- `rep1::Vector{M}`: matrices of group generators in `rep1`.
+- `rep2::Vector{M}`: matrices of group generators in `rep2` (with the same `eltype` as `rep1`).
+
+## Details
+The intertwiner equation can be rewritten as
+```
+    L[g] vec(f) = 0,  where  L[g] = 1 ⊗ rep2[g] - transpose(rep1[g]) ⊗ 1
+```
+Thus the space of intertwiners is just the common null space (kernel) of each `L[g]`.
+Actually, using `L[g]` for group generators is enough. 
 """
-Gram-Schmidt orthogonalization of a basis of the intertwiner space.
-"""
-function _gram_schmidt(
-    intertwiners::Vector{M}; tol::Float64=1e-10
-) where {M<:AbstractMatrix}
-    N = length(intertwiners)
-    T = eltype(intertwiners[1])
-    basis = Vector{M}()
-    for i in 1:N
-        v = intertwiners[i]
-        # Subtract projections along all previously obtained basis vectors.
-        for Q in basis
-            proj_coeff = _inner_prod(Q, v) / _inner_prod(Q, Q)
-            v = v - proj_coeff * Q
-        end
-        if abs(_inner_prod(v, v)) < tol
-            error("Encountered near-zero vector during orthogonalization.")
-        end
-        norm_v = sqrt(_inner_prod(v, v))
-        push!(basis, v / norm_v)
-    end
-    return basis
+function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMatrix}
+    d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
+    (d2 < d1) && error("Dimension of `rep2` must be larger than `rep1`.")
+    L = vcat(
+        (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
+    )
+    # intertwiner space is the same as null space of `op`
+    fs = nullspace(L)
+    (size(fs, 2) == 0) &&
+        error("There are no non-trivial intertwiners between rep1 and rep2.")
+    # make the basis orthonormal with polar decomposition
+    fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
+    return fs
 end

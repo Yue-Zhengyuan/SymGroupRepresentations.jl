@@ -1,13 +1,12 @@
 name = "SymGroupRepresentations"
 uuid = "012f8b28-f87f-4a0e-ba3f-b2c050e084d0"
-authors = ["Zhengyuan Yue <yuezy1997@icloud.com>", "Lukas Devos"]
+authors = ["Zhengyuan Yue <yuezy1997@icloud.com>", "Lukas Devos <ldevos98@gmail.com>"]
 version = "0.0.1-DEV"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MatrixFactorizations = "a3b82374-2e81-5b9e-98ce-41277c0e4c87"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 TensorKit = "07d1fe3e-3e46-537d-9eac-e9e13d0d4cec"
 TensorKitSectors = "13a9c161-d5da-41f0-bcbd-e1a08ae0647f"
