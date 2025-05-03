@@ -62,13 +62,6 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMat
     return rep_u
 end
 
-function _find_first_nonzero_element(matrix::AbstractMatrix, tol=1e-14)
-    for a in matrix[:, 1]
-        (abs(a) > tol) && return a
-    end
-    return error("No element in the first column is significantly different from zero.")
-end
-
 function is_propto1(A::AbstractMatrix, tol=1e-12)
     if (size(A, 1) == size(A, 2))
         n = size(A, 1)
@@ -127,11 +120,12 @@ function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMa
         (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
     )
     # intertwiner space is the same as null space of `op`
-    # fs = nullspace(L)
-    # fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
-    fs = _nullspace!(L; atol=TOL_NULLSPACE)
-    fs = [gaugefix!(Matrix(reshape(f, (d2, d1)))) for f in eachcol(fs)]
-    (length(fs) == 0) &&
+    fs = nullspace(L)
+    (size(fs, 2) == 0) &&
         error("There are no non-trivial intertwiners between rep1 and rep2.")
+    # make the null space basis vectors unique
+    fs = gaugefix!(fs)
+    @assert is_left_unitary(fs)
+    fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
     return fs
 end

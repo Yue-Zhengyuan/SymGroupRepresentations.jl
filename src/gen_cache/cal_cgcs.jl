@@ -50,13 +50,8 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
                     irrep3 = irrep_gen[c3]
                     fs = get_intertwiners(irrep3, rep)
                     iden = collect(_inner_prod(f1, f2) for f1 in fs, f2 in fs)
-                    @assert isapprox(
-                        iden, I(length(fs))
-                    ) "Intertwiner basis is not orthonormal for s1 = $s1, s2 = $s2, s3 = $(values(R)[c3]). \n$iden"
+                    @assert isapprox(iden, I(length(fs))) "Intertwiner basis is not orthonormal for s1 = $s1, s2 = $s2, s3 = $(values(R)[c3]). \n$iden"
                     basis = hcat(fs...)
-                    # phase fixing
-                    num = _find_first_nonzero_element(basis)
-                    basis .*= abs(num) / num
                     @assert is_left_unitary(basis)
                     return basis
                 end

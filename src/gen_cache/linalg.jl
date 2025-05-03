@@ -1,5 +1,3 @@
-# tolerance for nullspace
-const TOL_NULLSPACE = 1e-13
 # tolerance for gaugefixing should probably be bigger than that with which nullspace was determined
 const TOL_GAUGE = 1e-11
 # tolerance for dropping zeros
@@ -16,7 +14,7 @@ function qrpos!(C)
 end
 
 """
-Find the column reduced echelon form (cref) of matrix `A`
+Put the matrix `A` into the column reduced echelon form (cref).
 """
 function cref!(
     A::AbstractMatrix,
@@ -68,17 +66,4 @@ function findabsmax(a)
         end
     end
     return m, mi
-end
-
-function _nullspace!(
-    A::AbstractMatrix;
-    atol::Real=0.0,
-    rtol::Real=(min(size(A)...) * eps(real(float(one(eltype(A)))))) * iszero(atol),
-)
-    m, n = size(A)
-    (m == 0 || n == 0) && return Matrix{eltype(A)}(I, n, n)
-    SVD = svd!(A; full=true, alg=LinearAlgebra.QRIteration())
-    tol = max(atol, SVD.S[1] * rtol)
-    indstart = sum(s -> s .> tol, SVD.S) + 1
-    return copy(SVD.Vt[indstart:end, :]')
 end
