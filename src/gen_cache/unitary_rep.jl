@@ -127,10 +127,11 @@ function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMa
         (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
     )
     # intertwiner space is the same as null space of `op`
-    fs = nullspace(L)
-    (size(fs, 2) == 0) &&
+    # fs = nullspace(L)
+    # fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
+    fs = _nullspace!(L; atol=TOL_NULLSPACE)
+    fs = [gaugefix!(Matrix(reshape(f, (d2, d1)))) for f in eachcol(fs)]
+    (length(fs) == 0) &&
         error("There are no non-trivial intertwiners between rep1 and rep2.")
-    # make the basis orthonormal with polar decomposition
-    fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
     return fs
 end

@@ -49,9 +49,10 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
                 map(zip(c3s, n3s)) do (c3, n3)
                     irrep3 = irrep_gen[c3]
                     fs = get_intertwiners(irrep3, rep)
+                    iden = collect(_inner_prod(f1, f2) for f1 in fs, f2 in fs)
                     @assert isapprox(
-                        collect(_inner_prod(f1, f2) for f1 in fs, f2 in fs), I(length(fs))
-                    )
+                        iden, I(length(fs))
+                    ) "Intertwiner basis is not orthonormal for s1 = $s1, s2 = $s2, s3 = $(values(R)[c3]). \n$iden"
                     basis = hcat(fs...)
                     # phase fixing
                     num = _find_first_nonzero_element(basis)
@@ -70,7 +71,7 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
             ) for i in 1:length(rep)
         ]
         if !all(isapprox(g1, g2) for (g1, g2) in zip(rep, repds))
-            error("CG basis is incorrect for $s1, $s2.")
+            error("Calculated CG basis is incorrect for irrep decomposition of $s1 ⊗ $s2.")
         end
     end
     # meaning of each row/column of `basis`
@@ -82,7 +83,7 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     # convert to CGC dict; entries with CGC = 0 are not saved
     CGC = Dict{NTuple{7,Int},T}()
     for (r, (i1, i2)) in enumerate(rows), (c, (c3, i3, deg)) in enumerate(cols)
-        if !isapprox(cgbasis[r, c], 0.0; atol=5 * eps())
+        if abs(cgbasis[r, c]) > TOL_PURGE
             CGC[(c1, c2, c3, i1, i2, i3, deg)] = cgbasis[r, c]
         end
     end
