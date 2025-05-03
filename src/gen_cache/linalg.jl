@@ -1,3 +1,5 @@
+# tolerance for nullspace
+const TOL_NULLSPACE = 1e-13
 # tolerance for gaugefixing should probably be bigger than that with which nullspace was determined
 const TOL_GAUGE = 1e-11
 # tolerance for dropping zeros
