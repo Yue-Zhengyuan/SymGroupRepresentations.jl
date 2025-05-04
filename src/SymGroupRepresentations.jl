@@ -4,9 +4,7 @@ using LinearAlgebra
 using AbstractAlgebra
 using TensorKitSectors
 using TensorOperations
-using MatrixFactorizations
 using SparseArrays
-using Random
 
 export Sym, SNIrrep
 export S3, S4, S5
@@ -57,7 +55,9 @@ Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s2.part, s1.part)
 dim(s::SNIrrep) = Int(Generic.dim(YoungTableau(s.part)))
 
 # generate CGC disk cache
+include("gen_cache/linalg.jl")
 include("gen_cache/unitary_rep.jl")
+include("gen_cache/elements.jl")
 include("gen_cache/irrep_data.jl")
 include("gen_cache/cal_cgcs.jl")
 
@@ -65,9 +65,7 @@ include("cgc.jl")
 include("sector.jl")
 
 const _allCGCs = (;
-    :S3 => _calall_CGCs(S3Irrep),
-    :S4 => _calall_CGCs(S4Irrep),
-    :S5 => _calall_CGCs(S5Irrep)
+    :S3 => _calall_CGCs(S3Irrep), :S4 => _calall_CGCs(S4Irrep), :S5 => _calall_CGCs(S5Irrep)
 )
 @info "CG coefficients for S3, S4, S5 pre-calculated."
 
