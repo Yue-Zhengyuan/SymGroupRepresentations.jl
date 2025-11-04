@@ -2,8 +2,8 @@
 # -------
 Base.:(==)(s::SNIrrep{N}, t::SNIrrep{N}) where {N} = (s.part == t.part)
 Base.hash(s::SNIrrep, h::UInt) = hash(s.part, h)
-Base.conj(s::SNIrrep) = s
-Base.one(::Type{SNIrrep{N}}) where {N} = SNIrrep{N}([N])
+TensorKitSectors.dual(s::SNIrrep) = s
+TensorKitSectors.unit(::Type{SNIrrep{N}}) where {N} = SNIrrep{N}([N])
 
 # symmetric group irreps are all real
 sectorscalartype(::Type{<:SNIrrep}) = Float64
