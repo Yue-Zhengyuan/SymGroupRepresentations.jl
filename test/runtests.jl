@@ -42,5 +42,5 @@ end
 
 @testset "JET" begin
     using JET: JET
-    JET.test_package(TensorKitSectors; target_defined_modules=true)
+    JET.test_package(TensorKitSectors; target_defined_modules = true)
 end

@@ -15,7 +15,7 @@ end
 Find all Clebsch-Gordan coefficients relevant to reduction of `s1 ⊗ s2`.
 Since `s1 ⊗ s2 = s2 ⊗ s1`, we only calculate `s1 ≤ s2` cases. 
 """
-function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
+function _cal_CGCs(s1::R, s2::R) where {R <: SNIrrep}
     (s1 > s2) && error("Only intended to calculate CGCs for `s1 ≤ s2`.")
     if R == S3Irrep
         irrep_gen = irreps_gen.S3
@@ -62,8 +62,8 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
         rep = [cgbasis' * g * cgbasis for g in rep]
         repds = [
             block_diag(
-                (irrep_gen[c3][i] for (a, c3) in enumerate(c3s) for _ in 1:n3s[a])...
-            ) for i in 1:length(rep)
+                    (irrep_gen[c3][i] for (a, c3) in enumerate(c3s) for _ in 1:n3s[a])...
+                ) for i in 1:length(rep)
         ]
         if !all(isapprox(g1, g2) for (g1, g2) in zip(rep, repds))
             error("Calculated CG basis is incorrect for irrep decomposition of $s1 ⊗ $s2.")
@@ -73,10 +73,10 @@ function _cal_CGCs(s1::R, s2::R) where {R<:SNIrrep}
     rows = [(i1, i2) for i1 in 1:dim(s1) for i2 in 1:dim(s2)]
     cols = [
         (c3, i3, deg) for (a, c3) in enumerate(c3s) for deg in 1:n3s[a] for
-        i3 in 1:dim(values(R)[c3])
+            i3 in 1:dim(values(R)[c3])
     ]
     # convert to CGC dict; entries with CGC = 0 are not saved
-    CGC = Dict{NTuple{7,Int},T}()
+    CGC = Dict{NTuple{7, Int}, T}()
     for (r, (i1, i2)) in enumerate(rows), (c, (c3, i3, deg)) in enumerate(cols)
         if abs(cgbasis[r, c]) > TOL_PURGE
             CGC[(c1, c2, c3, i1, i2, i3, deg)] = cgbasis[r, c]
@@ -92,9 +92,13 @@ function _calall_CGCs(R::Type{<:SNIrrep})
     # CGCs with s1 <= s2
     ss = values(R)
     n = length(ss)
-    allcgcs = merge((begin
-        s1, s2 = ss[c1], ss[c2]
-        _cal_CGCs(s1, s2)
-    end for c1 in 1:n for c2 in c1:n)...)
+    allcgcs = merge(
+        (
+            begin
+                    s1, s2 = ss[c1], ss[c2]
+                    _cal_CGCs(s1, s2)
+                end for c1 in 1:n for c2 in c1:n
+        )...
+    )
     return allcgcs
 end

@@ -36,10 +36,10 @@ struct SNIrrep{N} <: AbstractIrrep{Sym{N}}
     end
 end
 
-function SNIrrep{N}(part::Vector{I}) where {N,I<:Integer}
+function SNIrrep{N}(part::Vector{I}) where {N, I <: Integer}
     return SNIrrep{N}(Partition(part))
 end
-function SNIrrep(part::Vector{I}) where {I<:Integer}
+function SNIrrep(part::Vector{I}) where {I <: Integer}
     return SNIrrep{sum(part)}(Partition(part))
 end
 
@@ -48,7 +48,7 @@ const S4Irrep = SNIrrep{4}
 const S5Irrep = SNIrrep{5}
 
 # Only S3, S4 have SimpleFusion
-const SNIrrepSimple = Union{S3Irrep,S4Irrep}
+const SNIrrepSimple = Union{S3Irrep, S4Irrep}
 
 Base.isless(s1::SNIrrep{N}, s2::SNIrrep{N}) where {N} = isless(s2.part, s1.part)
 
@@ -65,7 +65,7 @@ include("cgc.jl")
 include("sector.jl")
 
 const _allCGCs = (;
-    :S3 => _calall_CGCs(S3Irrep), :S4 => _calall_CGCs(S4Irrep), :S5 => _calall_CGCs(S5Irrep)
+    :S3 => _calall_CGCs(S3Irrep), :S4 => _calall_CGCs(S4Irrep), :S5 => _calall_CGCs(S5Irrep),
 )
 @info "CG coefficients for S3, S4, S5 pre-calculated."
 

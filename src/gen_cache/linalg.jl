@@ -1,9 +1,9 @@
 # tolerance for nullspace
-const TOL_NULLSPACE = 1e-13
+const TOL_NULLSPACE = 1.0e-13
 # tolerance for gaugefixing should probably be bigger than that with which nullspace was determined
-const TOL_GAUGE = 1e-11
+const TOL_GAUGE = 1.0e-11
 # tolerance for dropping zeros
-const TOL_PURGE = 1e-14
+const TOL_PURGE = 1.0e-14
 
 function qrpos!(C)
     q, r = qr!(C)
@@ -19,9 +19,9 @@ end
 Put the matrix `A` into the column reduced echelon form (cref).
 """
 function cref!(
-    A::AbstractMatrix,
-    ɛ=eltype(A) <: Union{Rational,Integer} ? 0 : 10 * length(A) * eps(norm(A, Inf)),
-)
+        A::AbstractMatrix,
+        ɛ = eltype(A) <: Union{Rational, Integer} ? 0 : 10 * length(A) * eps(norm(A, Inf)),
+    )
     nr, nc = size(A)
     i = j = 1
     @inbounds while i <= nr && j <= nc

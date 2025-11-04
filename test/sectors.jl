@@ -62,7 +62,7 @@ if BraidingStyle(I) isa Bosonic && hasfusiontensor(I)
                     else
                         f2 = Fsymbol(a, b, c, d, e, f) * dim(d)
                     end
-                    @test isapprox(f1, f2; atol=1e-12, rtol=1e-12)
+                    @test isapprox(f1, f2; atol = 1.0e-12, rtol = 1.0e-12)
                 end
             end
         end
@@ -91,17 +91,17 @@ end
                 end
                 F = hvcat(length(fs), Fblocks...)
             end
-            @test isapprox(F' * F, one(F); atol=1e-12, rtol=1e-12)
+            @test isapprox(F' * F, one(F); atol = 1.0e-12, rtol = 1.0e-12)
         end
     end
 end
 @testset "Sector $Istr: Pentagon equation" begin
     for a in smallset(I), b in smallset(I), c in smallset(I), d in smallset(I)
-        @test pentagon_equation(a, b, c, d; atol=1e-12, rtol=1e-12)
+        @test pentagon_equation(a, b, c, d; atol = 1.0e-12, rtol = 1.0e-12)
     end
 end
 @testset "Sector $Istr: Hexagon equation" begin
     for a in smallset(I), b in smallset(I), c in smallset(I)
-        @test hexagon_equation(a, b, c; atol=1e-12, rtol=1e-12)
+        @test hexagon_equation(a, b, c; atol = 1.0e-12, rtol = 1.0e-12)
     end
 end

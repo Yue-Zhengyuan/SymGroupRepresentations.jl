@@ -1,4 +1,4 @@
-function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrep}
+function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T, R <: SNIrrep}
     ndeg = _Nsymbol(s1, s2, s3)
     cgc = zeros(T, dim(s1), dim(s2), dim(s3), ndeg)
     c1, c2, c3 = 0, 0, 0
@@ -27,4 +27,4 @@ function CGC(::Type{T}, s1::R, s2::R, s3::R) where {T,R<:SNIrrep}
     return cgc
 end
 
-CGC(s1::I, s2::I, s3::I) where {I<:SNIrrep} = CGC(sectorscalartype(I), s1, s2, s3)
+CGC(s1::I, s2::I, s3::I) where {I <: SNIrrep} = CGC(sectorscalartype(I), s1, s2, s3)

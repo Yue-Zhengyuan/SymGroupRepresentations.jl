@@ -19,7 +19,7 @@ TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
     function SNIrrepValues{N}() where {N}
-        return new{N}(sort!(AbstractAlgebra.Generic.partitions(N); rev=true))
+        return new{N}(sort!(AbstractAlgebra.Generic.partitions(N); rev = true))
     end
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
@@ -57,17 +57,17 @@ end
 # Fusion product
 # --------------
 
-function TensorKitSectors.:⊗(a::I, b::I) where {I<:SNIrrep}
+function TensorKitSectors.:⊗(a::I, b::I) where {I <: SNIrrep}
     return Iterators.filter(c -> Nsymbol(a, b, c) > 0, values(I))
 end
 
-function fusiontensor(s1::I, s2::I, s3::I) where {I<:SNIrrep}
+function fusiontensor(s1::I, s2::I, s3::I) where {I <: SNIrrep}
     return CGC(sectorscalartype(I), s1, s2, s3)
 end
 
 ## GeneralFusion
 
-function _Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrep}
+function _Nsymbol(s1::I, s2::I, s3::I) where {I <: SNIrrep}
     c1, c2, c3 = 0, 0, 0
     for (a, s) in enumerate(values(I))
         (s == s1) && (c1 = a)
@@ -83,11 +83,11 @@ function _Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrep}
     return Int(sum(nc .* conj(char_table[c3, :]) .* chis) / ng)
 end
 
-function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrep}
+function Nsymbol(s1::I, s2::I, s3::I) where {I <: SNIrrep}
     return _Nsymbol(s1, s2, s3)
 end
 
-function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrep}
+function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I <: SNIrrep}
     N1 = Nsymbol(a, b, e)
     N2 = Nsymbol(e, c, d)
     N3 = Nsymbol(b, c, f)
@@ -104,7 +104,7 @@ function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrep}
     return F
 end
 
-function Rsymbol(a::I, b::I, c::I) where {I<:SNIrrep}
+function Rsymbol(a::I, b::I, c::I) where {I <: SNIrrep}
     N1 = Nsymbol(a, b, c)
     N2 = Nsymbol(b, a, c)
     R = Array{sectorscalartype(I)}(undef, N1, N2)
@@ -118,12 +118,12 @@ end
 ## Special cases with SimpleFusion
 
 # Nsymbol is of type Bool
-function Nsymbol(s1::I, s2::I, s3::I) where {I<:SNIrrepSimple}
+function Nsymbol(s1::I, s2::I, s3::I) where {I <: SNIrrepSimple}
     return Bool(_Nsymbol(s1, s2, s3))
 end
 
 # Fsymbol isa Number
-function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrepSimple}
+function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I <: SNIrrepSimple}
     (Nsymbol(a, b, e) && Nsymbol(e, c, d) && Nsymbol(b, c, f) && Nsymbol(a, f, d)) ||
         return zero(sectorscalartype(I))
     A = fusiontensor(a, b, e)[:, :, :, 1]
@@ -134,7 +134,7 @@ function Fsymbol(a::I, b::I, c::I, d::I, e::I, f::I) where {I<:SNIrrepSimple}
 end
 
 # Rsymbol isa Number
-function Rsymbol(a::I, b::I, c::I) where {I<:SNIrrepSimple}
+function Rsymbol(a::I, b::I, c::I) where {I <: SNIrrepSimple}
     (Nsymbol(a, b, c) && Nsymbol(b, a, c)) || return zero(sectorscalartype(I))
     A = fusiontensor(a, b, c)[:, :, 1, 1]
     B = fusiontensor(b, a, c)[:, :, 1, 1]

@@ -1,10 +1,10 @@
 """
 Determine if a square matrix `a` is left-unitary, i.e. `a' * a ≈ 1`.
 """
-function is_left_unitary(a::AbstractMatrix; tol=1e-12)
+function is_left_unitary(a::AbstractMatrix; tol = 1.0e-12)
     n = size(a, 2)
     iden = Matrix{eltype(a)}(I, n, n)
-    return isapprox(a' * a, iden; atol=tol)
+    return isapprox(a' * a, iden; atol = tol)
 end
 
 """
@@ -32,7 +32,7 @@ convert it to a unitary representation using the "unitarian trick"
 - `rep::Vector{T} where {T<:AbstractMatrix}`: the matrix for group generators in the non-unitary representation.
 - `elements::Vector`: functions to calculate matrices for all group elements from the generators.
 """
-function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMatrix}
+function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T <: AbstractMatrix}
     if all(is_left_unitary.(rep))
         return rep
     end
@@ -53,8 +53,8 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMat
     # self-check
     @assert all(is_left_unitary.(rep_u))
     for (g, gu) in zip(rep, rep_u)
-        if isapprox(tr(g), 0; atol=1e-14)
-            @assert isapprox(tr(gu), 0, atol=1e-14)
+        if isapprox(tr(g), 0; atol = 1.0e-14)
+            @assert isapprox(tr(gu), 0, atol = 1.0e-14)
         else
             @assert isapprox(tr(g), tr(gu))
         end
@@ -62,7 +62,7 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T<:AbstractMat
     return rep_u
 end
 
-function is_propto1(A::AbstractMatrix, tol=1e-12)
+function is_propto1(A::AbstractMatrix, tol = 1.0e-12)
     if (size(A, 1) == size(A, 2))
         n = size(A, 1)
         c1 = (tr(A) / n) * Matrix{eltype(A)}(I(n))
@@ -113,14 +113,14 @@ The intertwiner equation can be rewritten as
 Thus the space of intertwiners is just the common null space (kernel) of each `L[g]`.
 Actually, using `L[g]` for group generators is enough. 
 """
-function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMatrix}
+function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M <: AbstractMatrix}
     d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
     (d2 < d1) && error("Dimension of `rep2` must be larger than `rep1`.")
     L = vcat(
         (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
     )
     # intertwiner space is the same as null space of `op`
-    fs = nullspace(L; atol=TOL_NULLSPACE)
+    fs = nullspace(L; atol = TOL_NULLSPACE)
     (size(fs, 2) == 0) &&
         error("There are no non-trivial intertwiners between rep1 and rep2.")
     # make the null space basis vectors unique
