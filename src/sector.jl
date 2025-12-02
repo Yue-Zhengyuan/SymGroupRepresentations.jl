@@ -11,7 +11,6 @@ sectorscalartype(::Type{<:SNIrrep}) = Float64
 TensorKitSectors.FusionStyle(::Type{S3Irrep}) = SimpleFusion()
 TensorKitSectors.FusionStyle(::Type{S4Irrep}) = SimpleFusion()
 TensorKitSectors.FusionStyle(::Type{<:SNIrrep}) = GenericFusion()
-TensorKitSectors.BraidingStyle(::Type{<:SNIrrep}) = Bosonic()
 
 # Iterator over all allowed sectors
 # custom implementation to keep state
