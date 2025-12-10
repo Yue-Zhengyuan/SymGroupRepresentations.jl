@@ -87,8 +87,8 @@ end
 """
     get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M<:AbstractMatrix}
 
-Given two unitary representations `rep1`, `rep2` of a group `G` 
-(`rep1` is irreducible, and `rep2` has a larger or equal dimension than `rep1`)
+Given two unitary representations `rep1`, `rep2` of a group `G`
+(assume `rep1` is irreducible)
 construct an orthonormal basis of the space of intertwiners `f`
 between the two representations that satisfies
 ```
@@ -115,16 +115,14 @@ Actually, using `L[g]` for group generators is enough.
 """
 function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M <: AbstractMatrix}
     d1, d2 = size(rep1[1], 1), size(rep2[1], 1)
-    (d2 < d1) && error("Dimension of `rep2` must be larger than `rep1`.")
+    # (d2 < d1) && error("Dimension of `rep2` must be larger than `rep1`.")
     L = vcat(
         (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
     )
     fs = nullspace(L; atol = TOL_NULLSPACE)
-    if !(size(fs, 2) == 0)
-        # make the null space basis vectors unique
-        fs = gaugefix!(fs)
-        @assert is_left_unitary(fs)
-        fs = [first(qrpos!(Matrix(reshape(f, (d2, d1))))) for f in eachcol(fs)]
-    end
+    # make the null space basis vectors unique
+    fs = gaugefix!(fs)
+    @assert is_left_unitary(fs)
+    fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
     return fs
 end

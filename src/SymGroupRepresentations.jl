@@ -5,6 +5,7 @@ using AbstractAlgebra
 using TensorKitSectors
 using TensorOperations
 using SparseArrays
+using MatrixFactorizations: polar
 
 export Sym, SNIrrep
 export S3, S4, S5
