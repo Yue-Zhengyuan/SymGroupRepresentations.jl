@@ -89,7 +89,6 @@ end
 Find all nonzero Clebsch-Gordan coefficients for `SNIrrep` with `s1 ≤ s2`.
 """
 function _calall_CGCs(R::Type{<:SNIrrep})
-    # CGCs with s1 <= s2
     ss = values(R)
     n = length(ss)
     allcgcs = merge(

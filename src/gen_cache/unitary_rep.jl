@@ -120,11 +120,11 @@ function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M <: Abstract
         (kron(I(d1), r2) - kron(transpose(r1), I(d2)) for (r1, r2) in zip(rep1, rep2))...
     )
     fs = nullspace(L; atol = TOL_NULLSPACE)
-    (size(fs, 2) == 0) &&
-        error("There are no non-trivial intertwiners between rep1 and rep2.")
-    # make the null space basis vectors unique
-    fs = gaugefix!(fs)
-    @assert is_left_unitary(fs)
-    fs = [first(qrpos!(Matrix(reshape(f, (d2, d1))))) for f in eachcol(fs)]
+    if !(size(fs, 2) == 0)
+        # make the null space basis vectors unique
+        fs = gaugefix!(fs)
+        @assert is_left_unitary(fs)
+        fs = [first(qrpos!(Matrix(reshape(f, (d2, d1))))) for f in eachcol(fs)]
+    end
     return fs
 end
