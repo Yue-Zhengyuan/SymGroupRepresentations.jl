@@ -21,4 +21,6 @@ The irreps of a symmetric group $S_n$ are labelled by partitions of $n$, and arr
 
 </center>
 
-The partition of $n$ is implemented by [AbstractAlgebra.jl](https://github.com/Nemocas/AbstractAlgebra.jl). See the related docs [here](https://nemocas.github.io/AbstractAlgebra.jl/stable/ytabs/).
+The partition of $n$ is implemented by [AbstractAlgebra.jl](https://github.com/Nemocas/AbstractAlgebra.jl).
+
+Please refer to the docs for application to the classical Potts model.
