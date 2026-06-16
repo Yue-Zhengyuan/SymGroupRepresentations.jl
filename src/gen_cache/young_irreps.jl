@@ -34,6 +34,7 @@ function all_standard_tableaux(partition)
             shape[r] -= 1
             T[r, c] = 0
         end
+        return
     end
 
     dfs(1)

@@ -1,29 +1,15 @@
-# number of elements in each conjugacy class
-const ncs = (; :S3 => [1, 3, 2], :S4 => [1, 6, 3, 8, 6], :S5 => [1, 10, 15, 20, 20, 30, 24])
+# number of elements in each conjugacy class (ascending partition order)
+const ncs = (;
+    :S3 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(3)))],
+    :S4 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(4)))],
+    :S5 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(5)))],
+)
 
-# character table (ordered by descending partition: trivial → sign)
+# character table (rows: descending partition order, cols: ascending partition order)
 const char_tables = (;
-    :S3 => [
-        1 1 1
-        2 0 -1
-        1 -1 1
-    ],
-    :S4 => [
-        1 1 1 1 1
-        3 1 -1 0 -1
-        2 0 2 -1 0
-        3 -1 -1 0 1
-        1 -1 1 1 -1
-    ],
-    :S5 => [
-        1 1 1 1 1 1 1
-        4 2 0 1 -1 0 -1
-        5 1 1 -1 1 -1 0
-        6 0 -2 0 0 0 1
-        5 -1 1 -1 -1 1 0
-        4 -2 0 1 1 0 -1
-        1 -1 1 1 -1 -1 1
-    ],
+    :S3 => character_table(3),
+    :S4 => character_table(4),
+    :S5 => character_table(5),
 )
 
 # unitary irrep matrices for generators, computed via Young's orthogonal form.
