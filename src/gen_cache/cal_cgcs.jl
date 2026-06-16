@@ -52,13 +52,13 @@ function _cal_CGCs(s1::R, s2::R) where {R <: SNIrrep}
                     iden = collect(_inner_prod(f1, f2) for f1 in fs, f2 in fs)
                     @assert isapprox(iden, I(length(fs))) "Intertwiner basis is not orthonormal for s1 = $s1, s2 = $s2, s3 = $(values(R)[c3]). \n$iden"
                     basis = hcat(fs...)
-                    @assert is_left_unitary(basis)
+                    @assert isisometric(basis)
                     return basis
                 end
             )...,
         )
         # self check: compare with the direct sum representation
-        @assert is_left_unitary(cgbasis) "CG basis is not unitary for $s1 ⊗ $s2."
+        @assert isisometric(cgbasis) "CG basis is not unitary for $s1 ⊗ $s2."
         rep = [cgbasis' * g * cgbasis for g in rep]
         repds = [
             block_diag(
