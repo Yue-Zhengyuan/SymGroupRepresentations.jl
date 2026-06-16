@@ -13,7 +13,7 @@ TensorKitSectors = "13a9c161-d5da-41f0-bcbd-e1a08ae0647f"
 TensorOperations = "6aa20fa7-93e2-5fca-9bc0-fbd0db3c71a2"
 
 [compat]
-AbstractAlgebra = "0.47, 0.48"
+AbstractAlgebra = "0.47, 0.48, 0.49, 0.50"
 Combinatorics = "1"
 LinearAlgebra = "1"
 MatrixFactorizations = "3"
