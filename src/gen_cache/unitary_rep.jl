@@ -1,13 +1,4 @@
 """
-Determine if a square matrix `a` is left-unitary, i.e. `a' * a ≈ 1`.
-"""
-function is_left_unitary(a::AbstractMatrix; tol = 1.0e-12)
-    n = size(a, 2)
-    iden = Matrix{eltype(a)}(I, n, n)
-    return isapprox(a' * a, iden; atol = tol)
-end
-
-"""
 Create a block diagonal matrix from square blocks
 """
 function block_diag(matrices::AbstractMatrix...)
@@ -33,7 +24,7 @@ convert it to a unitary representation using the "unitarian trick"
 - `elements::Vector`: functions to calculate matrices for all group elements from the generators.
 """
 function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T <: AbstractMatrix}
-    if all(is_left_unitary.(rep))
+    if all(isisometric.(rep))
         return rep
     end
     ng = length(elements)
@@ -51,7 +42,7 @@ function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T <: AbstractM
     Uinv = ρ * (F.vectors)'
     rep_u = [Uinv * g * U for g in rep]
     # self-check
-    @assert all(is_left_unitary.(rep_u))
+    @assert all(isisometric.(rep_u))
     for (g, gu) in zip(rep, rep_u)
         if isapprox(tr(g), 0; atol = 1.0e-14)
             @assert isapprox(tr(gu), 0, atol = 1.0e-14)
@@ -122,7 +113,7 @@ function get_intertwiners(rep1::Vector{M}, rep2::Vector{M}) where {M <: Abstract
     fs = nullspace(L; atol = TOL_NULLSPACE)
     # make the null space basis vectors unique
     fs = gaugefix!(fs)
-    @assert is_left_unitary(fs)
-    fs = [polar(Matrix(reshape(f, (d2, d1)))).U for f in eachcol(fs)]
+    @assert isisometric(fs)
+    fs = [first(left_polar(Matrix(reshape(f, (d2, d1))))) for f in eachcol(fs)]
     return fs
 end

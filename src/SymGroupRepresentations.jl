@@ -2,10 +2,10 @@ module SymGroupRepresentations
 
 using LinearAlgebra
 using AbstractAlgebra
+using MatrixAlgebraKit
 using TensorKitSectors
 using TensorOperations
 using SparseArrays
-using MatrixFactorizations: polar
 
 export Sym, SNIrrep
 export S3, S4, S5
