@@ -20,7 +20,7 @@ function all_standard_tableaux(partition)
     function dfs(k)
         if k > n
             push!(tableaux, copy(T))
-            return
+            return nothing
         end
         # try each addable row
         for r in 1:nrows
@@ -34,7 +34,7 @@ function all_standard_tableaux(partition)
             shape[r] -= 1
             T[r, c] = 0
         end
-        return
+        return nothing
     end
 
     dfs(1)
