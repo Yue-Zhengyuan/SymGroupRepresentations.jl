@@ -136,8 +136,7 @@ end
     young_orthogonal_irreps(n::Int)
 
 Return a vector of `[x1, x2]` generator pairs for all irreducible representations
-of S_n, ordered by descending lexicographic partition (matching the standard
-character table convention: trivial first, sign last).
+of S_n, ordered by descending partition (trivial first, sign last).
 
 # Details
 
@@ -164,8 +163,6 @@ The standard generators of S_n used in this package:
 Reference: James & Kerber, "The Representation Theory of the Symmetric Group"
 """
 function young_orthogonal_irreps(n::Int)
-    # partitions(n) returns ascending order; we need descending lexicographic
-    parts = collect(partitions(n))
-    sort!(parts, rev = true)   # descending lexicographic
+    parts = sort!(partitions(n); rev = true)
     return [young_orthogonal_irrep(p) for p in parts]
 end

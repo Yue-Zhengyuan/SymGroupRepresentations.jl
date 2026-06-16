@@ -98,14 +98,13 @@ end
     character_table(n::Int)
 
 Compute the character table of S_n.  Rows correspond to irreducible representations
-ordered by descending partition (trivial first, sign last), columns to conjugacy
-classes ordered by ascending partition (identity first, n-cycle last).
+and columns to conjugacy classes, both ordered by descending partition.
 
 Returns an `nparts × nparts` integer matrix.
 """
 function character_table(n::Int)
-    λ_parts = sort!(collect(partitions(n)), rev = true)
-    μ_parts = sort!(collect(partitions(n)))
+    λ_parts = sort!(partitions(n); rev = true)
+    μ_parts = sort!(partitions(n); rev = true)
     ncols = length(μ_parts)
     table = Matrix{Int}(undef, length(λ_parts), ncols)
     for (i, λ) in enumerate(λ_parts)
