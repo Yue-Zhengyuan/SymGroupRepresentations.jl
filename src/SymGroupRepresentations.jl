@@ -2,6 +2,7 @@ module SymGroupRepresentations
 
 using LinearAlgebra
 using AbstractAlgebra
+using AbstractAlgebra.Generic: partitions
 using MatrixAlgebraKit
 using TensorKitSectors
 using TensorOperations
@@ -58,7 +59,8 @@ dim(s::SNIrrep) = Int(Generic.dim(YoungTableau(s.part)))
 # generate CGC disk cache
 include("gen_cache/linalg.jl")
 include("gen_cache/unitary_rep.jl")
-include("gen_cache/elements.jl")
+include("gen_cache/young_irreps.jl")
+include("gen_cache/character.jl")
 include("gen_cache/irrep_data.jl")
 include("gen_cache/cal_cgcs.jl")
 

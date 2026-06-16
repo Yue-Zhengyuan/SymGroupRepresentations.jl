@@ -14,45 +14,6 @@ function block_diag(matrices::AbstractMatrix...)
     return bm
 end
 
-"""
-Given a non-unitary representation `rep` of a group with `elements`,
-convert it to a unitary representation using the "unitarian trick"
-(See Chapter II.1 in Zee, Group Theory in A Nutshell for Physicists).
-
-## Arguments
-- `rep::Vector{T} where {T<:AbstractMatrix}`: the matrix for group generators in the non-unitary representation.
-- `elements::Vector`: functions to calculate matrices for all group elements from the generators.
-"""
-function get_unitary_rep(rep::Vector{T}, elements::Vector) where {T <: AbstractMatrix}
-    if all(isisometric.(rep))
-        return rep
-    end
-    ng = length(elements)
-    H = similar(rep[1])
-    fill!(H, 0)
-    for elem in elements
-        g = elem(rep...)
-        H += (1 / ng) * (g' * g)
-    end
-    F = eigen(H)
-    @assert all(e .>= 0 for e in F.values)
-    ρ = diagm(sqrt.(F.values))
-    ρinv = diagm(1 ./ sqrt.(F.values))
-    U = F.vectors * ρinv
-    Uinv = ρ * (F.vectors)'
-    rep_u = [Uinv * g * U for g in rep]
-    # self-check
-    @assert all(isisometric.(rep_u))
-    for (g, gu) in zip(rep, rep_u)
-        if isapprox(tr(g), 0; atol = 1.0e-14)
-            @assert isapprox(tr(gu), 0, atol = 1.0e-14)
-        else
-            @assert isapprox(tr(g), tr(gu))
-        end
-    end
-    return rep_u
-end
-
 function is_propto1(A::AbstractMatrix, tol = 1.0e-12)
     if (size(A, 1) == size(A, 2))
         n = size(A, 1)

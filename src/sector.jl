@@ -13,12 +13,10 @@ TensorKitSectors.FusionStyle(::Type{S4Irrep}) = SimpleFusion()
 TensorKitSectors.FusionStyle(::Type{<:SNIrrep}) = GenericFusion()
 
 # Iterator over all allowed sectors
-# custom implementation to keep state
-# TODO: this is reversed...
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
     function SNIrrepValues{N}() where {N}
-        return new{N}(sort!(AbstractAlgebra.Generic.partitions(N); rev = true))
+        return new{N}(sort!(partitions(N); rev = true))
     end
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()
