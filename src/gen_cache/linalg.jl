@@ -5,16 +5,6 @@ const TOL_GAUGE = 1.0e-11
 # tolerance for dropping zeros
 const TOL_PURGE = 1.0e-14
 
-function qrpos!(C)
-    q, r = qr!(C)
-    d = diag(r)
-    map!(x -> x == zero(x) ? 1 : sign(x), d, d)
-    D = Diagonal(d)
-    Q = rmul!(Matrix(q), D)
-    R = ldiv!(D, Matrix(r))
-    return Q, R
-end
-
 """
 Put the matrix `A` into the column reduced echelon form (cref).
 """
@@ -55,7 +45,7 @@ function cref!(
     return A
 end
 
-gaugefix!(C) = first(qrpos!(cref!(C, TOL_GAUGE)))
+gaugefix!(C) = first(left_orth!(cref!(C, TOL_GAUGE); positive = true))
 
 function findabsmax(a)
     isempty(a) && throw(ArgumentError("collection must be non-empty"))
