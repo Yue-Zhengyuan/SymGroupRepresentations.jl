@@ -18,7 +18,7 @@ TensorKitSectors.FusionStyle(::Type{<:SNIrrep}) = GenericFusion()
 struct SNIrrepValues{N}
     part::Vector{AbstractAlgebra.Generic.Partition{Int}}
     function SNIrrepValues{N}() where {N}
-        return new{N}(sort!(AbstractAlgebra.Generic.partitions(N); rev = true))
+        return new{N}(sort!(partitions(N); rev = true))
     end
 end
 Base.values(::Type{SNIrrep{N}}) where {N} = SNIrrepValues{N}()

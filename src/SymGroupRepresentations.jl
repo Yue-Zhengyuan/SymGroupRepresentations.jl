@@ -2,6 +2,7 @@ module SymGroupRepresentations
 
 using LinearAlgebra
 using AbstractAlgebra
+using AbstractAlgebra.Generic: partitions
 using MatrixAlgebraKit
 using TensorKitSectors
 using TensorOperations

@@ -1,8 +1,8 @@
 # number of elements in each conjugacy class (ascending partition order)
 const ncs = (;
-    :S3 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(3)))],
-    :S4 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(4)))],
-    :S5 => [class_size(μ) for μ in sort!(collect(AbstractAlgebra.Generic.partitions(5)))],
+    :S3 => [class_size(μ) for μ in sort!(collect(partitions(3)))],
+    :S4 => [class_size(μ) for μ in sort!(collect(partitions(4)))],
+    :S5 => [class_size(μ) for μ in sort!(collect(partitions(5)))],
 )
 
 # character table (rows: descending partition order, cols: ascending partition order)

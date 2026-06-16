@@ -63,26 +63,30 @@ julia> character(Partition([2,1]), Partition([2,1]))
 function character(λ, μ)
     n = sum(λ)
     @assert sum(μ) == n "Partitions must have the same sum, got $(sum(λ)) and $(sum(μ))"
+    return character(young_orthogonal_irrep(λ), μ)
+end
 
-    # get irrep matrices for the two generators
-    x1, x2 = young_orthogonal_irrep(λ)
+"""
+    character(irrep::Vector{<:AbstractMatrix}, μ)
+
+Compute the character of the representation `irrep = [x1, x2]` on the conjugacy
+class with cycle type `μ`.  Call this variant to avoid recomputing the irrep
+matrices when evaluating many classes against the same representation.
+"""
+function character(irrep::Vector{<:AbstractMatrix}, μ)
+    x1, x2 = irrep[1], irrep[2]
+    n = sum(μ)
     d = size(x1, 1)
 
-    # permutation representative for this cycle type
     rep = cycle_type_representative(μ, n)
-
-    # decompose into adjacent transpositions
     ts = perm_to_adjacent_transpositions(rep)
 
     if isempty(ts)
-        # identity conjugacy class → character is dimension
         return Float64(d)
     end
 
-    # Multiply in reverse: M_rep = M_{s_{t_last}} ⋯ M_{s_{t_first}}
     M = Matrix{Float64}(I, d, d)
     for t in reverse(ts)
-        # s_t = x1^{t-1} * x2 * x1^{-(t-1)}
         Ms = x1^(t - 1) * x2 * x1^-(t - 1)
         M = Ms * M
     end
@@ -100,42 +104,17 @@ classes ordered by ascending partition (identity first, n-cycle last).
 Returns an `nparts × nparts` integer matrix.
 """
 function character_table(n::Int)
-    λ_parts = sort!(collect(AbstractAlgebra.Generic.partitions(n)), rev = true)
-    μ_parts = sort!(collect(AbstractAlgebra.Generic.partitions(n)))
+    λ_parts = sort!(collect(partitions(n)), rev = true)
+    μ_parts = sort!(collect(partitions(n)))
     ncols = length(μ_parts)
-
     table = Matrix{Int}(undef, length(λ_parts), ncols)
     for (i, λ) in enumerate(λ_parts)
-        x1, x2 = young_orthogonal_irrep(λ)
-        d = size(x1, 1)
+        irrep = young_orthogonal_irrep(λ)
         for (j, μ) in enumerate(μ_parts)
-            table[i, j] = _character_from_irrep(x1, x2, μ, n, d)
+            table[i, j] = round(Int, character(irrep, μ))
         end
     end
     return table
-end
-
-"""
-    _character_from_irrep(x1, x2, μ, n, d)
-
-Compute a single character value given pre-computed irrep matrices, avoiding
-recomputation of `young_orthogonal_irrep`.
-"""
-function _character_from_irrep(x1, x2, μ, n, d)
-    rep = cycle_type_representative(μ, n)
-    ts = perm_to_adjacent_transpositions(rep)
-
-    if isempty(ts)
-        return d
-    end
-
-    M = Matrix{Float64}(I, d, d)
-    for t in reverse(ts)
-        Ms = x1^(t - 1) * x2 * x1^-(t - 1)
-        M = Ms * M
-    end
-
-    return round(Int, real(tr(M)))
 end
 
 """

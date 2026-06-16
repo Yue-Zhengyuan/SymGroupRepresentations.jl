@@ -165,7 +165,7 @@ Reference: James & Kerber, "The Representation Theory of the Symmetric Group"
 """
 function young_orthogonal_irreps(n::Int)
     # partitions(n) returns ascending order; we need descending lexicographic
-    parts = collect(AbstractAlgebra.Generic.partitions(n))
+    parts = collect(partitions(n))
     sort!(parts, rev = true)   # descending lexicographic
     return [young_orthogonal_irrep(p) for p in parts]
 end
