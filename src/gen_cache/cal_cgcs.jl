@@ -1,16 +1,3 @@
-function _length_to_slice(lengths::Vector{Int}, muls::Vector{Int})
-    slices = Vector{UnitRange{Int}}()
-    start = 1
-    for (len, count) in zip(lengths, muls)
-        for _ in 1:count
-            slice = start:(start + len - 1)
-            push!(slices, slice)
-            start += len
-        end
-    end
-    return slices
-end
-
 """
 Find all Clebsch-Gordan coefficients relevant to reduction of `s1 ⊗ s2`.
 Since `s1 ⊗ s2 = s2 ⊗ s1`, we only calculate `s1 ≤ s2` cases. 
