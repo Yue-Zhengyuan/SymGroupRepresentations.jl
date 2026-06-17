@@ -3,7 +3,7 @@ using TestExtras
 using Random
 using TensorKit
 using TensorKitSectors
-using SymGroupRepresentations
+using SNIrreps
 using TensorOperations
 using Base.Iterators: take, product
 using LinearAlgebra: LinearAlgebra
