@@ -1,7 +1,7 @@
 # SNIrreps.jl
 
-<!-- [![Build Status](https://github.com/Yue-Zhengyuan/SNIrreps.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Yue-Zhengyuan/SNIrreps.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/Yue-Zhengyuan/SNIrreps.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Yue-Zhengyuan/SNIrreps.jl) -->
+[![Build Status](https://github.com/Yue-Zhengyuan/SNIrreps.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Yue-Zhengyuan/SNIrreps.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/Yue-Zhengyuan/SNIrreps.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Yue-Zhengyuan/SNIrreps.jl)
 
 Compute Clebsch-Gordan coefficients for small symmetric groups. Currently $S_3$, $S_4$, $S_5$ are supported. Compatibility / interoperability with [TensorKit.jl](https://github.com/Jutho/TensorKit.jl).
 
