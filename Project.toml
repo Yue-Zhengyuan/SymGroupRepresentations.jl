@@ -1,4 +1,4 @@
-name = "SymGroupRepresentations"
+name = "SNIrreps"
 uuid = "012f8b28-f87f-4a0e-ba3f-b2c050e084d0"
 version = "0.0.1"
 authors = ["Zhengyuan Yue <yuezy1997@icloud.com>", "Lukas Devos <ldevos98@gmail.com>"]

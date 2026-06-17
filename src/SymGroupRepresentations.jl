@@ -1,4 +1,4 @@
-module SymGroupRepresentations
+module SNIrreps
 
 using LinearAlgebra
 using AbstractAlgebra
