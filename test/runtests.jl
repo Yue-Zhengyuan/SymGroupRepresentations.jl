@@ -2,6 +2,7 @@ using Test
 using TestExtras
 using Random
 using TensorKit
+using TensorKit: FusionTreeBlock
 using TensorKitSectors
 using SNIrreps
 using TensorOperations
@@ -10,6 +11,8 @@ using LinearAlgebra: LinearAlgebra
 
 const TK = TensorKit
 const TKS = TensorKitSectors
+
+_isone(x; kwargs...) = isapprox(x, one(x); kwargs...)
 
 include("testsetup.jl")
 using .TestSetup
